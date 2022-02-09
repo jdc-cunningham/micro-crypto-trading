@@ -16,3 +16,4 @@ Research/insight work
 
 Trading "algorithms" (ha)
 - [ ] math equivalent of troughs
+- [ ] buy/sell ration eg. immediate gains at some percentage or stop at loss
