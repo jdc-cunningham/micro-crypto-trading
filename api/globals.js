@@ -40,11 +40,6 @@ const localCoinMap = {
     name: 'Amp',
     slug: 'amp',
   },
-  'TRU': {
-    id: 7725,
-    name: 'TrueFi',
-    slug: 'truefi-token',
-  },
   'SPELL': {
     id: 11289,
     name: 'Spell Token',
@@ -61,14 +56,12 @@ const cbpProductIdMap = {
   'IOTX': 'IOTX-USD',
   'ANKR': 'ANKR-USD',
   'AMP': 'AMP-USD',
-  'TRU': 'TRU-USD',
   'SPELL': 'SPELL-USD' 
 };
 
 const tradingFee = 0.01; // rounded up for safe math padding
 
 const coinSymbolPortfolioMap = {
-  'TRU': 2,
   'DNT': 3, // use array + 1 but oh well
   'MDT': 4,
   'BLZ': 5,
@@ -81,7 +74,7 @@ const coinSymbolPortfolioMap = {
 };
 
 const portfolioCredentialsMap = {
-  'TRU': {
+  'DNT': {
     id: process.env.CBP_PORTFOLIO_2_ID,
     key: process.env.CBP_PORTFOLIO_2_KEY,
     passphrase: process.env.CBP_PORTFOLIO_2_PASSPHRASE,

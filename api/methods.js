@@ -1,3 +1,4 @@
+const fs = require('fs');
 const crypto = require('crypto');
 const axios = require('axios');
 const { cbpProductIdMap } = require('./globals.js');
@@ -34,7 +35,7 @@ const getCoinMarketCapCryptoMap = () => {
         if (response?.data?.data) {
           const coinMap = response.data.data;
           const wantedCoins = [
-            'TRU', 'SPELL', 'XYO', 'AMP', 'MDT', 'LOOM', 'ANKR', 'DNT', 'IOTX', 'BLZ'
+            'SPELL', 'XYO', 'AMP', 'MDT', 'LOOM', 'ANKR', 'DNT', 'IOTX', 'BLZ'
           ];
           const matchedCoins = coinMap.filter(coin => wantedCoins.indexOf(coin.symbol) !== -1);
           resolve({data: matchedCoins});
@@ -46,6 +47,67 @@ const getCoinMarketCapCryptoMap = () => {
         reject({error: true});
       });
     });
+}
+
+// these errors are read by the web app
+const writeError = errMsg => {
+  const pastErrors = fs.readFile('./data/errors.json', 'utf8', (err, data) => {
+    if (err) {
+      return false;
+    } else {
+      return JSON.parse(data);
+    }
+  });
+
+  if (!pastErrors) { // doesn't make sense, errors failed to read not no errors
+    const updatedErrors = {
+      [Date.now()]: errMsg,
+      ...pastErrors
+    };
+
+    fs.writeFile('./data/errors.json', JSON.stringify(updatedErrors), 'utf8', (err, data) => {
+      // fail to write to error lol, use telepathy at this point
+    });
+  }
+}
+
+// accepts object
+// coin id map key, quote inner object
+// acces values eg. price, percent_change_1h, etc...
+const updateLocalCryptoPrices = (currentCoinMarketCapCryptoPrices) => {
+  // https://www.geeksforgeeks.org/node-js-fs-readfile-method/
+  const localPrices = fs.readFile('./data/price_tracking.json', 'utf8', (err, data) => {
+    if (data) {
+      return JSON.parse(data);
+    } else {
+      return false;
+    }
+  });
+
+  if (!localPrices) {
+    writeError('failed to update crypto prices');
+  } else {
+    const processTime = Date.now();
+
+    Object.keys(currentCoinMarketCapCryptoPrices).map(coinMapId => {
+      const coinQuote = currentCoinMarketCapCryptoPrices[coinMapId];
+      const { price, percent_change_1h, percent_change_24h, percent_change_7d } = coinQuote;
+
+      localPrices[coinQuote.symbol].push({
+        timestamp: processTime,
+        price: price.toFixed(4), // not very precise
+        percent_change_1h,
+        percent_change_24h,
+        percent_change_7d,
+      })
+    });
+
+    fs.writeFile('./data/price_tracking.json', JSON.stringify(localPrices), 'utf8', (err, data) => {
+      if (err) {
+        writeError(`Failed to write new prices, ${JSON.stringify(err).substring(0, 24)}`);
+      }
+    });
+  }
 }
 
 // https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_postorders
@@ -194,9 +256,9 @@ const getPortfolios = () => {
 
 module.exports = {
   getCoinMarketCapCryptoPrices,
-  getCoinMarketCapHistoricalData,
   getCoinMarketCapCryptoMap,
   createOrder,
   getPortfolios,
   getPortfolioBalance,
+  updateLocalCryptoPrices,
 }

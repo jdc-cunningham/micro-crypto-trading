@@ -2,7 +2,7 @@ require('dotenv').config({ path: './.env' });
 
 const {
   getPrice, getCoinMarketCapCryptoPrices, getCoinMarketCapCryptoMap, createOrder,
-  getPortfolios, getPortfolioBalance, getCoinMarketCapHistoricalData
+  getPortfolios, getPortfolioBalance, updateLocalCryptoPrices
 } = require('./methods');
 
 const {
@@ -54,13 +54,12 @@ const sell = async (coinSymbol) => {
 };
 
 const run = async () => {
-  // const truPrice = await getPrice();
-  // const coinMarketCapCryptoMap = await getCoinMarketCapCryptoMap();
-  // const coinMarketCapCryptoPrices = await getCoinMarketCapCryptoPrices(
-  //   `${Object.keys(localCoinMap).map(coinSymbol => localCoinMap[coinSymbol].id).join(',')}`
-  // );
-  // console.log(coinMarketCapCryptoPrices);
-  // console.log(coinMarketCapCryptoPrices.data['7725'].quote);
+  // const dntPrice = await getPrice();
+  const coinMarketCapCryptoPrices = await getCoinMarketCapCryptoPrices(
+    `${Object.keys(localCoinMap).map(coinSymbol => localCoinMap[coinSymbol].id).join(',')}`
+  );
+
+  updateLocalCryptoPrices(coinMarketCapCryptoPrices);
 
   // const portfolio2 = {
   //   id: process.env.CBP_PORTFOLIO_2_ID,
@@ -71,9 +70,9 @@ const run = async () => {
 
   // console.log(getPortfolios());
 
-  // buy('TRU', portfolio2);
-  // sell('TRU');
-  console.log(await getCoinMarketCapHistoricalData(localCoinMap['TRU'].id));
+  // buy('DNT', portfolio2);
+  // sell('DNT');
+  // console.log(await getCoinMarketCapHistoricalData(localCoinMap['DNT'].id));
 };
 
 run();
