@@ -4,7 +4,7 @@ Low effort tasks
 
 More effort
 - [ ] setup API calls
-  - [ ] current price
+  - [x] current price
   - [ ] trade
 
 Research/insight work
