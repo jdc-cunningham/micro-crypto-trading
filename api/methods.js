@@ -51,15 +51,17 @@ const getCoinMarketCapCryptoMap = () => {
 
 // these errors are read by the web app
 const writeError = errMsg => {
-  const pastErrors = fs.readFileSync('./data/errors.json', 'utf8', (err, data) => {
+  const pastRawErrors = fs.readFileSync('./data/errors.json', 'utf8', (err, data) => {
     if (err) {
       return false;
     } else {
-      return JSON.parse(data);
+      return data;
     }
   });
 
   if (!pastErrors) { // doesn't make sense, errors failed to read not no errors
+    const pastErrors = JSON.parse(pastRawErrors);
+
     const updatedErrors = {
       [Date.now()]: errMsg,
       ...pastErrors
@@ -67,6 +69,7 @@ const writeError = errMsg => {
 
     fs.writeFile('./data/errors.json', JSON.stringify(updatedErrors), 'utf8', (err, data) => {
       // fail to write to error lol, use telepathy at this point
+      console.log(`failed to write error to file, ${JSON.stringify(err).substring(0, 24)}`); // this will be visible on server cli by pm2 logs
     });
   }
 }
