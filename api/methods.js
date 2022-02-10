@@ -197,5 +197,5 @@ module.exports = {
   getCoinMarketCapCryptoMap,
   createOrder,
   getPortfolios,
-  getPortfolioBalance
+  getPortfolioBalance,
 }

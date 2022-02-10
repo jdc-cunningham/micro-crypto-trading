@@ -5,7 +5,8 @@ Low effort tasks
 More effort
 - [ ] setup API calls
   - [x] current price
-  - [ ] trade
+  - [x] trade
+  - [ ] setup callable API routes to the methods
 
 Research/insight work
 - [ ] parser for Reddit

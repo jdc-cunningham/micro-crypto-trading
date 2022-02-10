@@ -67,8 +67,32 @@ const cbpProductIdMap = {
 
 const tradingFee = 0.01; // rounded up for safe math padding
 
+const coinSymbolPortfolioMap = {
+  'TRU': 2,
+  'DNT': 3, // use array + 1 but oh well
+  'MDT': 4,
+  'BLZ': 5,
+  'LOOM': 6,
+  'XYO': 7,
+  'IOTX': 8,
+  'ANKR': 9,
+  'AMP': 10,
+  'SPELL': 11 
+};
+
+const portfolioCredentialsMap = {
+  'TRU': {
+    id: process.env.CBP_PORTFOLIO_2_ID,
+    key: process.env.CBP_PORTFOLIO_2_KEY,
+    passphrase: process.env.CBP_PORTFOLIO_2_PASSPHRASE,
+    secret: process.env.CBP_PORTFOLIO_2_SECRET
+  },
+};
+
 module.exports = {
   localCoinMap,
   cbpProductIdMap,
-  tradingFee
-}
+  tradingFee,
+  coinSymbolPortfolioMap,
+  portfolioCredentialsMap
+};
