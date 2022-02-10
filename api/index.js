@@ -55,11 +55,11 @@ const sell = async (coinSymbol) => {
 
 const run = async () => {
   // const dntPrice = await getPrice();
-  const coinMarketCapCryptoPrices = await getCoinMarketCapCryptoPrices(
-    `${Object.keys(localCoinMap).map(coinSymbol => localCoinMap[coinSymbol].id).join(',')}`
-  );
 
-  updateLocalCryptoPrices(coinMarketCapCryptoPrices.data);
+  // const coinMarketCapCryptoPrices = await getCoinMarketCapCryptoPrices(
+  //   `${Object.keys(localCoinMap).map(coinSymbol => localCoinMap[coinSymbol].id).join(',')}`
+  // );
+  // updateLocalCryptoPrices(coinMarketCapCryptoPrices.data);
 
   // const portfolio2 = {
   //   id: process.env.CBP_PORTFOLIO_2_ID,

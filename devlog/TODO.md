@@ -6,6 +6,7 @@ Immediate work
 - [x] setup the portfolios
 - [ ] bridge front end to back end
 - [ ] start process of buying/selling
+- [ ] desktop alerting
 
 Low effort tasks
 - [ ] setup CBP portfolios
