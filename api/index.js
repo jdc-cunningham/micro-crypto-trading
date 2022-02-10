@@ -15,9 +15,9 @@ const buy = async (coin, portfolio) => {
   );
 
   const coinId = localCoinMap[coin].id;
-  const coinPrice = 0.2245; // coinPrices.data[coinId].quote.USD.price;
+  const coinPrice = 0.2240; // coinPrices.data[coinId].quote.USD.price;
   const balanceAvailable = startingBalance - (startingBalance * tradingFee);
-  const size = (balanceAvailable / coinPrice).toFixed(4);
+  const size = (balanceAvailable / coinPrice).toFixed(1);
 
   createOrder({
     portfolio,

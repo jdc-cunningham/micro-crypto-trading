@@ -71,7 +71,7 @@ const createOrder = ({
       product_id: String(cbpProductIdMap[currencySymbol]),
       stp: 'dc',
       time_in_force: 'GTC',
-      post_only: true,
+      post_only: 'true',
       price: String(price), // string per crypto
       size: String(size), // unit of crypto
     };
@@ -81,15 +81,21 @@ const createOrder = ({
     const hmac = crypto.createHmac('sha256', key);
     const sign = hmac.update(what).digest('base64');
 
-    axios.post(`${process.env.CBP_API_BASE_URL}/orders`, {
+    const options = {
+      method: 'POST',
+      url: `${process.env.CBP_API_BASE_URL}/orders`,
       headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
         'CB-ACCESS-KEY': portfolio.key,
         'CB-ACCESS-SIGN': sign,
         'CB-ACCESS-TIMESTAMP': timestamp,
         'CB-ACCESS-PASSPHRASE': portfolio.passphrase
       },
-      body: JSON.stringify(body)
-    })
+      data: body,
+    };
+
+    axios.request(options)
       .then((response) => {
         console.log(response);
         resolve({
