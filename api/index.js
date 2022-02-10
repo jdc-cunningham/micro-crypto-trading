@@ -2,7 +2,7 @@ require('dotenv').config({ path: './.env' });
 
 const {
   getPrice, getCoinMarketCapCryptoPrices, getCoinMarketCapCryptoMap, createOrder,
-  getPortfolios, getPortfolioBalance
+  getPortfolios, getPortfolioBalance, getCoinMarketCapHistoricalData
 } = require('./methods');
 
 const {
@@ -72,7 +72,8 @@ const run = async () => {
   // console.log(getPortfolios());
 
   // buy('TRU', portfolio2);
-  sell('TRU');
+  // sell('TRU');
+  console.log(await getCoinMarketCapHistoricalData(localCoinMap['TRU'].id));
 };
 
 run();

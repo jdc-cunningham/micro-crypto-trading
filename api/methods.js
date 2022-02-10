@@ -194,6 +194,7 @@ const getPortfolios = () => {
 
 module.exports = {
   getCoinMarketCapCryptoPrices,
+  getCoinMarketCapHistoricalData,
   getCoinMarketCapCryptoMap,
   createOrder,
   getPortfolios,
