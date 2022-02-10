@@ -52,6 +52,23 @@ const localCoinMap = {
   }
 };
 
+const cbpProductIdMap = {
+  'DNT': 'DNT-USD',
+  'MDT': 'MDT-USD',
+  'BLZ': 'BLZ-USD',
+  'LOOM': 'LOOM-USD',
+  'XYO': 'XYO-USD',
+  'IOTX': 'IOTX-USD',
+  'ANKR': 'ANKR-USD',
+  'AMP': 'AMP-USD',
+  'TRU': 'TRU-USD',
+  'SPELL': 'SPELL-USD' 
+};
+
+const tradingFee = 0.01; // rounded up for safe math padding
+
 module.exports = {
-  localCoinMap
+  localCoinMap,
+  cbpProductIdMap,
+  tradingFee
 }
