@@ -1,3 +1,12 @@
+Immediate work
+- [x] plot mock graph
+- [ ] determine min/max
+- [x] determine data structure to hold future data as it's gathered
+- [ ] render the 10 different charts
+- [x] setup the portfolios
+- [ ] bridge front end to back end
+- [ ] start process of buying/selling
+
 Low effort tasks
 - [ ] setup CBP portfolios
 - [ ] Prototype chartJS "widget"
