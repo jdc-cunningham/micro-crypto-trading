@@ -51,7 +51,7 @@ const getCoinMarketCapCryptoMap = () => {
 
 // these errors are read by the web app
 const writeError = errMsg => {
-  const pastErrors = fs.readFile('./data/errors.json', 'utf8', (err, data) => {
+  const pastErrors = fs.readFileSync('./data/errors.json', 'utf8', (err, data) => {
     if (err) {
       return false;
     } else {
@@ -76,24 +76,27 @@ const writeError = errMsg => {
 // acces values eg. price, percent_change_1h, etc...
 const updateLocalCryptoPrices = (currentCoinMarketCapCryptoPrices) => {
   // https://www.geeksforgeeks.org/node-js-fs-readfile-method/
-  const localPrices = fs.readFile('./data/price_tracking.json', 'utf8', (err, data) => {
+  const localRawPrices = fs.readFileSync('./data/price_tracking.json', 'utf8', (err, data) => {
     if (data) {
-      return JSON.parse(data);
+      return data;
     } else {
       return false;
     }
   });
 
-  if (!localPrices) {
-    writeError('failed to update crypto prices');
+  if (!localRawPrices) {
+    writeError('Failed to read local crypto prices');
   } else {
+    const localPrices = JSON.parse(localRawPrices);
     const processTime = Date.now();
 
     Object.keys(currentCoinMarketCapCryptoPrices).map(coinMapId => {
-      const coinQuote = currentCoinMarketCapCryptoPrices[coinMapId];
+      const coinPriceInfo = currentCoinMarketCapCryptoPrices[coinMapId];
+      const { symbol } = coinPriceInfo;
+      const coinQuote = coinPriceInfo.quote.USD;
       const { price, percent_change_1h, percent_change_24h, percent_change_7d } = coinQuote;
 
-      localPrices[coinQuote.symbol].push({
+      localPrices[symbol].unshift({
         timestamp: processTime,
         price: price.toFixed(4), // not very precise
         percent_change_1h,

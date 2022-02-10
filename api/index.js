@@ -59,7 +59,7 @@ const run = async () => {
     `${Object.keys(localCoinMap).map(coinSymbol => localCoinMap[coinSymbol].id).join(',')}`
   );
 
-  updateLocalCryptoPrices(coinMarketCapCryptoPrices);
+  updateLocalCryptoPrices(coinMarketCapCryptoPrices.data);
 
   // const portfolio2 = {
   //   id: process.env.CBP_PORTFOLIO_2_ID,
