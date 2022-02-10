@@ -1,11 +1,209 @@
 {
-  "DNT": [],
-  "MDT": [],
-  "BLZ": [],
-  "LOOM": [],
-  "XYO": [],
-  "IOTX": [],
-  "ANKR": [],
-  "AMP": [],
-  "SPELL": [] 
+  "DNT": [
+    {
+      "timestamp": 1644530537514,
+      "price": 0.0924,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530717189,
+      "price": 0.0934,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530722189,
+      "price": 0.0914,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    }
+  ],
+  "MDT": [
+    {
+      "timestamp": 1644530537514,
+      "price": 0.0067,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530717189,
+      "price": 0.0057,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530722189,
+      "price": 0.0047,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    }
+  ],
+  "BLZ": [
+    {
+      "timestamp": 1644530537514,
+      "price": 0.2045,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530717189,
+      "price": 0.2045,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530722189,
+      "price": 0.2045,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    }
+  ],
+  "LOOM": [
+    {
+      "timestamp": 1644530537514,
+      "price": 0.0794,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530717189,
+      "price": 0.0784,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530722189,
+      "price": 0.0804,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    }
+  ],
+  "XYO": [
+    {
+      "timestamp": 1644530537514,
+      "price": 0.0239,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530717189,
+      "price": 0.0240,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530722189,
+      "price": 0.0238,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    }
+  ],
+  "IOTX": [
+    {
+      "timestamp": 1644530537514,
+      "price": 0.1063,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530717189,
+      "price": 0.1053,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530722189,
+      "price": 0.1073,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    }
+  ],
+  "ANKR": [
+    {
+      "timestamp": 1644530537514,
+      "price": 0.0842,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530717189,
+      "price": 0.0840,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530722189,
+      "price": 0.0832,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    }
+  ],
+  "AMP": [
+    {
+      "timestamp": 1644530537514,
+      "price": 0.0304,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530717189,
+      "price": 0.0300,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530722189,
+      "price": 0.0314,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    }
+  ],
+  "SPELL": [
+    {
+      "timestamp": 1644530537514,
+      "price": 0.0070,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530717189,
+      "price": 0.0069,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    },
+    {
+      "timestamp": 1644530722189,
+      "price": 0.0071,
+      "percent_change_1h": 0.0,
+      "percent_change_24h": 0.0,
+      "percent_change_7d": 0.0
+    }
+  ] 
 }

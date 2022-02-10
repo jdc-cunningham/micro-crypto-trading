@@ -260,6 +260,84 @@ const getPortfolios = () => {
   });
 }
 
+const buy = async (coinSymbol) => {
+  const startingBalance = 55.00; // USD
+
+  const coinPrices = await getCoinMarketCapCryptoPrices(
+    `${Object.keys(localCoinMap).map(coinSymbol => localCoinMap[coinSymbol].id).join(',')}`
+  );
+
+  const coinId = localCoinMap[coin].id;
+  const coinPrice = 0.2240; // coinPrices.data[coinId].quote.USD.price;
+  const balanceAvailable = startingBalance - (startingBalance * tradingFee);
+  const size = (balanceAvailable / coinPrice).toFixed(1);
+
+  createOrder({
+    portfolio,
+    currencySymbol: coin,
+    side: 'buy',
+    price: coinPrice,
+    size
+  });
+};
+
+const sell = async (coinSymbol) => {
+  const portfolio = portfolioCredentialsMap[coinSymbol];
+
+  const currentCryptoBalance = 243.1; // need to get this from the stored state, flip between USD and crypto
+
+  // const coinPrices = await getCoinMarketCapCryptoPrices(
+  //   `${Object.keys(localCoinMap).map(coinSymbol => localCoinMap[coinSymbol].id).join(',')}`
+  // );
+
+  // const coinId = localCoinMap[coin].id;
+  const coinPrice = 0.229; // coinPrices.data[coinId].quote.USD.price;
+  // const balanceAvailable = startingBalance - (startingBalance * tradingFee);
+  // const size = (balanceAvailable / coinPrice).toFixed(1);
+
+  createOrder({
+    portfolio,
+    currencySymbol: coinSymbol,
+    side: 'sell',
+    price: coinPrice,
+    size: currentCryptoBalance
+  });
+};
+
+const getAllChartData = (request, response) => {
+  // this processing will get worse over time, every day will add 288 entries
+  const localRawPrices = fs.readFileSync('./data/price_tracking.json', 'utf8', (err, data) => {
+    if (data) {
+      return data;
+    } else {
+      return false;
+    }
+  });
+
+  if (!localRawPrices) {
+    writeError('Failed to read local crypto prices');
+    response.status('500').json({err: true});
+  } else {
+    const localPrices = JSON.parse(localRawPrices);
+
+    // filter out by today's date
+    // https://stackoverflow.com/a/30158617/2710227
+    const todaysDate = new Date(Date.now()).toISOString().split('T')[0];
+    const todayStartingTimestamp = new Date(todaysDate).getTime();
+    const todayEndingTimestamp = todayStartingTimestamp + (24 * 60 * 60 * 1000);
+
+    // I almost did this a poor way but I thought for 2 seconds and use the timestamp route vs. date comparison
+
+    response.status('200').json({
+      data: Object.keys(localPrices).map(coinSymbol => ({
+        coinSymbol: localPrices[coinSymbol].filter(price =>
+          price.timestamp >= todayStartingTimestamp && price.timestamp <= todayEndingTimestamp
+        )
+      }))
+    });
+  }
+}
+
 module.exports = {
   getCoinMarketCapCryptoPrices,
   getCoinMarketCapCryptoMap,
@@ -267,4 +345,7 @@ module.exports = {
   getPortfolios,
   getPortfolioBalance,
   updateLocalCryptoPrices,
+  buy,
+  sell,
+  getAllChartData
 }

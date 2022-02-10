@@ -1,5 +1,6 @@
 # files
 .env
+env.js
 
 #folders
 node_modules/

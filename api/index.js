@@ -1,57 +1,18 @@
 require('dotenv').config({ path: './.env' });
 
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+const port = 5011;
+
 const {
   getPrice, getCoinMarketCapCryptoPrices, getCoinMarketCapCryptoMap, createOrder,
-  getPortfolios, getPortfolioBalance, updateLocalCryptoPrices
+  getPortfolios, getPortfolioBalance, updateLocalCryptoPrices, buy, sell, getAllChartData
 } = require('./methods');
 
 const {
   localCoinMap, tradingFee, coinSymbolPortfolioMap, portfolioCredentialsMap,
 } = require('./globals.js');
-
-const buy = async (coinSymbol) => {
-  const startingBalance = 55.00; // USD
-
-  const coinPrices = await getCoinMarketCapCryptoPrices(
-    `${Object.keys(localCoinMap).map(coinSymbol => localCoinMap[coinSymbol].id).join(',')}`
-  );
-
-  const coinId = localCoinMap[coin].id;
-  const coinPrice = 0.2240; // coinPrices.data[coinId].quote.USD.price;
-  const balanceAvailable = startingBalance - (startingBalance * tradingFee);
-  const size = (balanceAvailable / coinPrice).toFixed(1);
-
-  createOrder({
-    portfolio,
-    currencySymbol: coin,
-    side: 'buy',
-    price: coinPrice,
-    size
-  });
-};
-
-const sell = async (coinSymbol) => {
-  const portfolio = portfolioCredentialsMap[coinSymbol];
-
-  const currentCryptoBalance = 243.1; // need to get this from the stored state, flip between USD and crypto
-
-  // const coinPrices = await getCoinMarketCapCryptoPrices(
-  //   `${Object.keys(localCoinMap).map(coinSymbol => localCoinMap[coinSymbol].id).join(',')}`
-  // );
-
-  // const coinId = localCoinMap[coin].id;
-  const coinPrice = 0.229; // coinPrices.data[coinId].quote.USD.price;
-  // const balanceAvailable = startingBalance - (startingBalance * tradingFee);
-  // const size = (balanceAvailable / coinPrice).toFixed(1);
-
-  createOrder({
-    portfolio,
-    currencySymbol: coinSymbol,
-    side: 'sell',
-    price: coinPrice,
-    size: currentCryptoBalance
-  });
-};
 
 const run = async () => {
   // const dntPrice = await getPrice();
@@ -75,4 +36,28 @@ const run = async () => {
   // console.log(await getCoinMarketCapHistoricalData(localCoinMap['DNT'].id));
 };
 
-run();
+// run();
+
+// took this base server code from previous apps I've made
+// this is running in my own home network eg. 192 ip address so security is not a huge concern
+// CORs
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
+app.use(
+  bodyParser.urlencoded({
+      extended: true
+  })
+);
+
+app.use(bodyParser.json()); // can set limit
+
+// routes
+app.get('/get-all-chart-data', getAllChartData);
+
+app.listen(port, () => {
+  console.log(`App running... on port ${port}`);
+});

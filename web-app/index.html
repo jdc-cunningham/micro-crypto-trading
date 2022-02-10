@@ -7,37 +7,13 @@
   <link rel="stylesheet" href="./styles/css-reset.css">
   <link rel="stylesheet" href="./styles/main.css">
   <script src="./assets/js/chart.js"></script>
+  <script src="./assets/axios.min.js"></script>
   <title>Micro Crypto Trading</title>
 </head>
 <body>
-  <canvas id="myChart"></canvas>
+  
   <script>
-    const dataPoints = [
-      0.26, 0.28, 0.26, 0.30, 0.26, 0.17, 0.18, 0.16, 0.20, 0.18, 0.22, 0.21, 0.22
-    ];
-
-    const labels = dataPoints.map((index, element) => index);
-  
-    const data = {
-      labels: labels,
-      datasets: [{
-        label: 'My First dataset',
-        backgroundColor: 'rgb(255, 99, 132)',
-        borderColor: 'rgb(255, 99, 132)',
-        data: dataPoints,
-      }]
-    };
-  
-    const config = {
-      type: 'line',
-      data: data,
-      options: {}
-    };
-
-    const myChart = new Chart(
-      document.getElementById('myChart'),
-      config
-    );
+    
   </script>
 </body>
 </html>
