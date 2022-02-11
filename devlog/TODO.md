@@ -1,6 +1,6 @@
 Bare minimum
 - [ ] log all prices every 5 minutes by API
-- [ ] pull these prices by day and plot on web app
+- [x] pull these prices by day and plot on web app
 - [ ] some kind of algorith to trade
   - the app has to decide when to perform the first buy based on when it start's running
     the history at that point, I don't have historical data, could source it but not going to

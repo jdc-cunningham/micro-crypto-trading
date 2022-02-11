@@ -322,7 +322,9 @@ const getAllChartData = (request, response) => {
 
     // filter out by today's date
     // https://stackoverflow.com/a/30158617/2710227
-    const todaysDate = new Date(Date.now()).toISOString().split('T')[0];
+    // tz https://stackoverflow.com/a/28149561/2710227
+    const tzOffset = (new Date()).getTimezoneOffset() * 60000;
+    const todaysDate = new Date(Date.now() - tzOffset).toISOString().split('T')[0];
     const todayStartingTimestamp = new Date(todaysDate).getTime();
     const todayEndingTimestamp = todayStartingTimestamp + (24 * 60 * 60 * 1000);
 
@@ -330,7 +332,7 @@ const getAllChartData = (request, response) => {
 
     response.status('200').json({
       data: Object.keys(localPrices).map(coinSymbol => ({
-        coinSymbol: localPrices[coinSymbol].filter(price =>
+        [coinSymbol]: localPrices[coinSymbol].filter(price =>
           price.timestamp >= todayStartingTimestamp && price.timestamp <= todayEndingTimestamp
         )
       }))
