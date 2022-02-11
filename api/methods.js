@@ -20,7 +20,7 @@ const getCoinMarketCapCryptoPrices = (coinIdCommaStr) => {
         console.log(error);
         reject({error: true});
       });
-    });
+  });
 }
 
 // combine functions above
@@ -46,7 +46,7 @@ const getCoinMarketCapCryptoMap = () => {
       .catch((error) => {
         reject({error: true});
       });
-    });
+  });
 }
 
 // these errors are read by the web app
@@ -68,8 +68,10 @@ const writeError = errMsg => {
     };
 
     fs.writeFile('./data/errors.json', JSON.stringify(updatedErrors), 'utf8', (err, data) => {
-      // fail to write to error lol, use telepathy at this point
-      console.log(`failed to write error to file, ${JSON.stringify(err).substring(0, 24)}`); // this will be visible on server cli by pm2 logs
+      if (err) {
+        // fail to write to error lol, use telepathy at this point
+        console.log(`failed to write error to file, ${JSON.stringify(err).substring(0, 24)}`); // this will be visible on server cli by pm2 logs
+      }
     });
   }
 }
@@ -260,47 +262,105 @@ const getPortfolios = () => {
   });
 }
 
-const buy = async (coinSymbol) => {
-  const startingBalance = 55.00; // USD
+/**
+ * if a transaction succeeds this updates the relevant coin's
+ * local portfolio values to keep the state of the portfolios in check
+ * in order to keep buying/selling
+ *
+ * @param {String} coinSymbol eg. DNT
+ * @param {String} action buy/sell 
+ * @param {Object} txInfo has info like amount and size
+ */
+const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
+  // txAmount can flex between units of a coin and USD depending on action
+  const { txAmount, txSize, txPrice, txLoss, txGain, txId } = txInfo;
 
-  const coinPrices = await getCoinMarketCapCryptoPrices(
-    `${Object.keys(localCoinMap).map(coinSymbol => localCoinMap[coinSymbol].id).join(',')}`
-  );
+  const localPortfolioValues = fs.readFileSync('./data/portfolio_values.json', 'utf8', (err, data) => {
+    if (data) {
+      return data;
+    } else {
+      return false;
+    }
+  });
 
-  const coinId = localCoinMap[coin].id;
-  const coinPrice = 0.2240; // coinPrices.data[coinId].quote.USD.price;
-  const balanceAvailable = startingBalance - (startingBalance * tradingFee);
+  if (!localPortfolioValues) {
+    writeError(`Failed to update local portfolio values for coin ${coinSymbol}`);
+  } else {
+    const localPortfolioValues = JSON.parse(localPortfolioValues);
+    const updatedCoinPortfolioValues = localPortfolioValues[coinSymbol];
+    updatedCoinPortfolioValues['last_tx_id'] = txId;
+
+    if (action === 'buy') {
+      updatedCoinPortfolioValues['balance'] -= txPrice;
+      updatedCoinPortfolioValues['amt'] = txAmount;
+      updatedCoinPortfolioValues['prev_buy_price'] = txPrice;
+      updatedCoinPortfolioValues['gain'] += txGain;
+    } else {
+      updatedCoinPortfolioValues['balance'] += txAmount;
+      updatedCoinPortfolioValues['amt'] = txSize;
+      updatedCoinPortfolioValues['prev_sell_price'] = txPrice;
+      updatedCoinPortfolioValues['loss'] += txLoss;
+    }
+
+    const updatedLocalPortfolioValues = {
+      ...localPortfolioValues,
+      [coinSymbol]: updatedCoinPortfolioValues
+    };
+
+    fs.writeFile('./data/portfolio_values.json', JSON.stringify(updatedLocalPortfolioValues), 'utf8', (err, data) => {
+      if (err) {
+        console.log(`failed to write to update local portfolio values`);
+      }
+    });
+  }
+}
+
+/**
+ * performs limit buy on CBP
+ *
+ * @param {String} coinSymbol eg. DNT
+ * @param {Float} coinPrice 4 decimal place precision
+ * @param {Float} coinPortfolioBalance USD
+ *
+ */
+const buy = async (coinSymbol, coinPrice, coinPortfolioBalance) => {
+  const coinPortfolio = portfolioCredentialsMap[coinSymbol];
+  const balanceAvailable = coinPortfolioBalance - (coinPortfolioBalance * tradingFee);
   const size = (balanceAvailable / coinPrice).toFixed(1);
 
-  createOrder({
-    portfolio,
-    currencySymbol: coin,
+  const coinPurchased = await createOrder({
+    portfolio: coinPortfolio,
+    currencySymbol: coinSymbol,
     side: 'buy',
     price: coinPrice,
     size
   });
+
+  if (!coinPurchased) {
+    writeError(`failed to buy ${coinSymbol}`);
+  } else {
+    console.log(coinPurchased);
+    // updateLocalPortfolioValues();
+  }
 };
 
-const sell = async (coinSymbol) => {
-  const portfolio = portfolioCredentialsMap[coinSymbol];
+/**
+ * performs limit sell on CBP
+ *
+ * @param {String} coinSymbol eg. DNT
+ * @param {Float} coinSalePrice determined salePrice from algo
+ * @param {Float} coinSaleSize size based on amt in portfolio
+ *
+ */
+const sell = async (coinSymbol, coinSalePrice, coinSaleSize) => {
+  const coinPortfolio = portfolioCredentialsMap[coinSymbol];
 
-  const currentCryptoBalance = 243.1; // need to get this from the stored state, flip between USD and crypto
-
-  // const coinPrices = await getCoinMarketCapCryptoPrices(
-  //   `${Object.keys(localCoinMap).map(coinSymbol => localCoinMap[coinSymbol].id).join(',')}`
-  // );
-
-  // const coinId = localCoinMap[coin].id;
-  const coinPrice = 0.229; // coinPrices.data[coinId].quote.USD.price;
-  // const balanceAvailable = startingBalance - (startingBalance * tradingFee);
-  // const size = (balanceAvailable / coinPrice).toFixed(1);
-
-  createOrder({
-    portfolio,
+  const performSale = await createOrder({
+    portfolio: coinPortfolio,
     currencySymbol: coinSymbol,
     side: 'sell',
-    price: coinPrice,
-    size: currentCryptoBalance
+    price: coinSalePrice,
+    size: coinSaleSize
   });
 };
 
@@ -340,6 +400,22 @@ const getAllChartData = (request, response) => {
   }
 }
 
+const getErrors = (request, response) => {
+  const errorsRaw = fs.readFileSync('./data/errors.json', 'utf8', (err, data) => {
+    if (data) {
+      return data;
+    } else {
+      return false;
+    }
+  });
+
+  if (!errorsRaw) {
+    response.status('200').json({errors: null});
+  } else {
+    response.status('200').json({errors: JSON.parse(errorsRaw)});
+  }
+}
+
 module.exports = {
   getCoinMarketCapCryptoPrices,
   getCoinMarketCapCryptoMap,
@@ -349,5 +425,6 @@ module.exports = {
   updateLocalCryptoPrices,
   buy,
   sell,
-  getAllChartData
+  getAllChartData,
+  getErrors
 }

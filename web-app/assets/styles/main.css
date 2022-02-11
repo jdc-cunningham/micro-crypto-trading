@@ -46,8 +46,17 @@ h1 {
 
 .app-wrapper__chart-area-charts-chart {
   display: inline-flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: column;
   width: calc((100% / 3) - 1rem);
   height: auto;
   margin: 0.5rem;
   border: 1px solid #303030;
+  padding: 0.5rem;
+}
+
+.app-wrapper__chart-area-charts-chart h2 {
+  font-weight: bold;
+  font-size: 1rem;
 }

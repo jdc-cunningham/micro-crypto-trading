@@ -1,56 +1,92 @@
 {
   "DNT": {
     "balance": 55.00,
+    "amt": 0.0,
     "gain": 0.00,
     "loss": 0.00,
-    "net": 0.00
+    "prev_buy_price": 0.00,
+    "prev_sell_price": 0.00,
+    "last_tx_id": "",
+    "last_tx_complete": false
   },
   "MDT": {
     "balance": 55.00,
+    "amt": 0.0,
     "gain": 0.00,
     "loss": 0.00,
-    "net": 0.00
+    "prev_buy_price": 0.00,
+    "prev_sell_price": 0.00,
+    "last_tx_id": "",
+    "last_tx_complete": false
   },
   "BLZ": {
     "balance": 55.00,
+    "amt": 0.0,
     "gain": 0.00,
     "loss": 0.00,
-    "net": 0.00
+    "prev_buy_price": 0.00,
+    "prev_sell_price": 0.00,
+    "last_tx_id": "",
+    "last_tx_complete": false
   },
   "LOOM": {
     "balance": 55.00,
+    "amt": 0.0,
     "gain": 0.00,
     "loss": 0.00,
-    "net": 0.00
+    "prev_buy_price": 0.00,
+    "prev_sell_price": 0.00,
+    "last_tx_id": "",
+    "last_tx_complete": false
   },
   "XYO": {
     "balance": 55.00,
+    "amt": 0.0,
     "gain": 0.00,
     "loss": 0.00,
-    "net": 0.00
+    "prev_buy_price": 0.00,
+    "prev_sell_price": 0.00,
+    "last_tx_id": "",
+    "last_tx_complete": false
   },
   "IOTX": {
     "balance": 55.00,
+    "amt": 0.0,
     "gain": 0.00,
     "loss": 0.00,
-    "net": 0.00
+    "prev_buy_price": 0.00,
+    "prev_sell_price": 0.00,
+    "last_tx_id": "",
+    "last_tx_complete": false
   },
   "ANKR": {
     "balance": 55.00,
+    "amt": 0.0,
     "gain": 0.00,
     "loss": 0.00,
-    "net": 0.00
+    "prev_buy_price": 0.00,
+    "prev_sell_price": 0.00,
+    "last_tx_id": "",
+    "last_tx_complete": false
   },
   "AMP": {
     "balance": 55.00,
+    "amt": 0.0,
     "gain": 0.00,
     "loss": 0.00,
-    "net": 0.00
+    "prev_buy_price": 0.00,
+    "prev_sell_price": 0.00,
+    "last_tx_id": "",
+    "last_tx_complete": false
   },
   "SPELL": {
     "balance": 55.00,
+    "amt": 0.0,
     "gain": 0.00,
     "loss": 0.00,
-    "net": 0.00
+    "prev_buy_price": 0.00,
+    "prev_sell_price": 0.00,
+    "last_tx_id": "",
+    "last_tx_complete": false
   } 
 }
