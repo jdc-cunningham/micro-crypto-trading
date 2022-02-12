@@ -7,7 +7,7 @@ const port = 5011;
 
 const {
   getPrice, getCoinMarketCapCryptoPrices, getCoinMarketCapCryptoMap, createOrder,
-  getPortfolios, getPortfolioBalance, updateLocalCryptoPrices, buy, sell, getAllChartData, getErrors
+  getPortfolios, getPortfolioBalance, updateLocalCryptoPrices, buy, sell, getAllChartData, getErrors, getOrderStatus
 } = require('./methods');
 
 const {
@@ -15,7 +15,12 @@ const {
 } = require('./globals.js');
 
 const run = async () => {
-  buy('DNT', '0.0878', 55.00);
+  try {
+    await buy('DNT', '0.0867', 55.00);
+    // await getOrderStatus('DNT', 'fae3bb2e-2c56-4d21-a83b-ed8a1d875794');
+  } catch (err) {
+    console.error(err);
+  }
 };
 
 run();

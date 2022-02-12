@@ -59,7 +59,7 @@ const writeError = errMsg => {
     }
   });
 
-  if (!pastErrors) { // doesn't make sense, errors failed to read not no errors
+  if (pastRawErrors) { // doesn't make sense, errors failed to read not no errors
     const pastErrors = JSON.parse(pastRawErrors);
 
     const updatedErrors = {
@@ -70,9 +70,11 @@ const writeError = errMsg => {
     fs.writeFile('./data/errors.json', JSON.stringify(updatedErrors), 'utf8', (err, data) => {
       if (err) {
         // fail to write to error lol, use telepathy at this point
-        console.log(`failed to write error to file, ${JSON.stringify(err).substring(0, 24)}`); // this will be visible on server cli by pm2 logs
+        console.log(`Failed to write error to file, ${JSON.stringify(err).substring(0, 24)}`); // this will be visible on server cli by pm2 logs
       }
     });
+  } else {
+    console.log('Failed to read error file');
   }
 }
 
@@ -116,6 +118,45 @@ const updateLocalCryptoPrices = (currentCoinMarketCapCryptoPrices) => {
       }
     });
   }
+}
+
+/**
+ * 
+ * @param {String} coinSymbol 
+ * @param {String} orderId 
+ * @returns {Object} status eg. open/filled or error
+ */
+const getOrderStatus = (coinSymbol, orderId) => {
+  return new Promise((resolve, reject) => {
+    const coinPortfolio = portfolioCredentialsMap[coinSymbol];
+    const secret = coinPortfolio.secret;
+    const timestamp = Date.now() / 1000;
+    const requestPath = `/orders/${orderId}`;
+    const method = 'GET';
+    const what = timestamp + method + requestPath;
+    const key = new Buffer.from(secret, 'base64');
+    const hmac = crypto.createHmac('sha256', key);
+    const sign = hmac.update(what).digest('base64');
+    
+
+    axios.get(`${process.env.CBP_API_BASE_URL}/orders/${orderId}`, {
+      headers: {
+        'CB-ACCESS-KEY': coinPortfolio.key,
+        'CB-ACCESS-SIGN': sign,
+        'CB-ACCESS-TIMESTAMP': timestamp,
+        'CB-ACCESS-PASSPHRASE': coinPortfolio.passphrase
+      },
+    })
+      .then((response) => {
+        resolve({
+          status: response.data.status
+        });
+      })
+      .catch((error) => {
+        writeError(`Failed to get ${coinSymbol} order status`);
+        reject(error);
+      });
+  });
 }
 
 // https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_postorders
@@ -166,15 +207,15 @@ const createOrder = ({
     };
 
     axios.request(options)
-      .then((response) => {
-        console.log(response);
+      .then(response => {
         resolve({
           data: response.data
         });
       })
-      .catch((error) => {
-        console.log(error);
-        reject({error});
+      .catch(error => {
+        writeError(`Failed to create ${side} order for ${currencySymbol}`);
+        console.log(typeof error);
+        reject(error);
       });
   });
 }
@@ -274,8 +315,9 @@ const getPortfolios = () => {
 const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
   // txAmount can flex between units of a coin and USD depending on action
   const { txAmount, txSize, txPrice, txLoss, txGain, txId } = txInfo;
+  console.log(txInfo);
 
-  const localPortfolioValues = fs.readFileSync('./data/portfolio_values.json', 'utf8', (err, data) => {
+  const localPortfolioValuesRaw = fs.readFileSync('./data/portfolio_values.json', 'utf8', (err, data) => {
     if (data) {
       return data;
     } else {
@@ -283,15 +325,15 @@ const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
     }
   });
 
-  if (!localPortfolioValues) {
+  if (!localPortfolioValuesRaw) {
     writeError(`Failed to update local portfolio values for coin ${coinSymbol}`);
   } else {
-    const localPortfolioValues = JSON.parse(localPortfolioValues);
+    const localPortfolioValues = JSON.parse(localPortfolioValuesRaw);
     const updatedCoinPortfolioValues = localPortfolioValues[coinSymbol];
     updatedCoinPortfolioValues['last_tx_id'] = txId;
 
     if (action === 'buy') {
-      updatedCoinPortfolioValues['balance'] -= txAmount;
+      updatedCoinPortfolioValues['balance'] = (updatedCoinPortfolioValues['balance'] - txAmount).toFixed(2);
       updatedCoinPortfolioValues['amount'] = txSize;
       updatedCoinPortfolioValues['prev_buy_price'] = txPrice;
     } else {
@@ -349,7 +391,7 @@ const buy = async (coinSymbol, coinPrice, coinPortfolioBalance) => {
       txId: id,
       txPrice: price,
       txSize: size,
-      txAmount: parseInt(price) * parseInt(size)
+      txAmount: (parseFloat(price) * parseFloat(size)).toFixed(2)
     };
 
     updateLocalPortfolioValues(coinSymbol, 'buy', txInfo);
@@ -452,5 +494,6 @@ module.exports = {
   buy,
   sell,
   getAllChartData,
-  getErrors
+  getErrors,
+  getOrderStatus
 }
