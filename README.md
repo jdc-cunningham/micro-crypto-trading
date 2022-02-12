@@ -1,5 +1,6 @@
 ### Micro Crypto Trading
 Disclaimer: I am not an expert, this is just a fun hobby thing for this > blog post < (update)
+Disclaimer: Also note the local portfolio balance tracker can lose/gain cents over time due to rounding problems.
 
 ### Stack
 - web app
@@ -18,4 +19,4 @@ The portfolio generation in CBP is manual. You have a cap of 10, I just messed a
 See the development branch for my thoughts as I made this thing over time
 
 ### Did this make money?
-ANSWER - I ran this for a month
+ANSWER - I ran this and checked in weekly increments

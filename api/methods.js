@@ -120,6 +120,29 @@ const updateLocalCryptoPrices = (currentCoinMarketCapCryptoPrices) => {
   }
 }
 
+const updateTxStatus = (coinSymbol, orderId, status) => {
+  const localPortfolioValuesRaw = fs.readFileSync('./data/portfolio_values.json', 'utf8', (err, data) => {
+    if (data) {
+      return data;
+    } else {
+      return false;
+    }
+  });
+
+  if (!localPortfolioValuesRaw) {
+    writeError(`Failed to update tx status for ${coinSymbol}`);
+  } else {
+    const portfolioValues = JSON.parse(localPortfolioValuesRaw);
+    portfolioValues[coinSymbol].last_tx_complete = status === 'done' ? true : false; // should always done at this stage
+
+    fs.writeFile('./data/portfolio_values.json', JSON.stringify(portfolioValues), 'utf8', (err, data) => {
+      if (err) {
+        console.log(`failed to write to update tx status for ${coinSymbol}`);
+      }
+    });
+  }
+}
+
 /**
  * 
  * @param {String} coinSymbol 
@@ -137,7 +160,6 @@ const getOrderStatus = (coinSymbol, orderId) => {
     const key = new Buffer.from(secret, 'base64');
     const hmac = crypto.createHmac('sha256', key);
     const sign = hmac.update(what).digest('base64');
-    
 
     axios.get(`${process.env.CBP_API_BASE_URL}/orders/${orderId}`, {
       headers: {
@@ -148,6 +170,12 @@ const getOrderStatus = (coinSymbol, orderId) => {
       },
     })
       .then((response) => {
+        const { status } = response.data;
+
+        if (status === 'done') {
+          updateTxStatus(coinSymbol, orderId, 'done');
+        }
+
         resolve({
           status: response.data.status
         });
@@ -303,6 +331,22 @@ const getPortfolios = () => {
   });
 }
 
+const getPortfolioValues = () => {
+  const localPortfolioValuesRaw = fs.readFileSync('./data/portfolio_values.json', 'utf8', (err, data) => {
+    if (data) {
+      return data;
+    } else {
+      return false;
+    }
+  });
+
+  if (!localPortfolioValuesRaw) {
+    writeError(`Failed to read local portfolio values`);
+  } else {
+    return JSON.parse(localPortfolioValuesRaw);
+  }
+}
+
 /**
  * if a transaction succeeds this updates the relevant coin's
  * local portfolio values to keep the state of the portfolios in check
@@ -331,20 +375,21 @@ const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
     const localPortfolioValues = JSON.parse(localPortfolioValuesRaw);
     const updatedCoinPortfolioValues = localPortfolioValues[coinSymbol];
     updatedCoinPortfolioValues['last_tx_id'] = txId;
+    updatedCoinPortfolioValues['last_tx_complete'] = false;
 
     if (action === 'buy') {
-      updatedCoinPortfolioValues['balance'] = (updatedCoinPortfolioValues['balance'] - txAmount).toFixed(2);
+      updatedCoinPortfolioValues['balance'] = (updatedCoinPortfolioValues['balance'] - parseFloat(txAmount)).toFixed(2);
       updatedCoinPortfolioValues['amount'] = txSize;
       updatedCoinPortfolioValues['prev_buy_price'] = txPrice;
     } else {
-      updatedCoinPortfolioValues['balance'] += txAmount;
-      updatedCoinPortfolioValues['amount'] = txSize;
+      updatedCoinPortfolioValues['balance'] = (parseFloat(updatedCoinPortfolioValues['balance']) + parseFloat(txAmount)).toFixed(2);
+      updatedCoinPortfolioValues['amount'] = 0; // should have sold all
       updatedCoinPortfolioValues['prev_sell_price'] = txPrice;
 
       if (txLoss) {
-        updatedCoinPortfolioValues['loss'] += txLoss;
+        updatedCoinPortfolioValues['loss'] = parseFloat(updatedCoinPortfolioValues['loss']) + parseFloat(txLoss);
       } else {      
-        updatedCoinPortfolioValues['gain'] += txGain;
+        updatedCoinPortfolioValues['gain'] = parseFloat(updatedCoinPortfolioValues['gain']) + parseFloat(txGain);
       }
     }
 
@@ -371,8 +416,8 @@ const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
  */
 const buy = async (coinSymbol, coinPrice, coinPortfolioBalance) => {
   const coinPortfolio = portfolioCredentialsMap[coinSymbol];
-  const balanceAvailable = coinPortfolioBalance - (coinPortfolioBalance * tradingFee);
-  const size = (balanceAvailable / coinPrice).toFixed(1);
+  const balanceAvailable = coinPortfolioBalance - (coinPortfolioBalance * tradingFee); // limits amount used by 2x actual trading fee
+  const size = (balanceAvailable / coinPrice).toFixed(0);
 
   const coinPurchased = await createOrder({
     portfolio: coinPortfolio,
@@ -386,12 +431,13 @@ const buy = async (coinSymbol, coinPrice, coinPortfolioBalance) => {
     writeError(`failed to buy ${coinSymbol}`);
   } else {
     const { id, price, size } = coinPurchased.data;
+    const rawTxAmount = parseFloat(price) * parseFloat(size);
 
     const txInfo = {
       txId: id,
       txPrice: price,
       txSize: size,
-      txAmount: (parseFloat(price) * parseFloat(size)).toFixed(2)
+      txAmount: (rawTxAmount + (rawTxAmount * 0.005)).toFixed(2) // adds 0.5% actual trading fee
     };
 
     updateLocalPortfolioValues(coinSymbol, 'buy', txInfo);
@@ -409,14 +455,60 @@ const buy = async (coinSymbol, coinPrice, coinPortfolioBalance) => {
 const sell = async (coinSymbol, coinSalePrice, coinSaleSize) => {
   const coinPortfolio = portfolioCredentialsMap[coinSymbol];
 
-  const performSale = await createOrder({
+  const coinSold = await createOrder({
     portfolio: coinPortfolio,
     currencySymbol: coinSymbol,
     side: 'sell',
     price: coinSalePrice,
     size: coinSaleSize
   });
+
+  if (!coinSold) {
+    writeError(`failed to sell ${coinSymbol}`);
+  } else {
+    console.log(coinSold);
+    const { id, price, size } = coinSold.data;
+    const rawTxAmount = parseFloat(price) * parseFloat(size);
+    const portfolioValues = getPortfolioValues();
+    console.log(portfolioValues);
+    const {amount, balance, prev_buy_price } = portfolioValues[coinSymbol];
+    const prevWalletValue = parseFloat(balance) + (parseInt(amount) * parseFloat(prev_buy_price));
+    const sellReturn = (rawTxAmount - (rawTxAmount * 0.005)).toFixed(2);
+
+    console.log(prevWalletValue);
+
+    let txGain;
+    let txLoss;
+
+    if (sellReturn > prevWalletValue) {
+      txGain = (sellReturn - prevWalletValue).toFixed(2);
+    } else {
+      txLoss = (sellReturn - prevWalletValue).toFixed(2);
+    }
+
+    const txInfo = {
+      txId: id,
+      txPrice: price,
+      txSize: size,
+      txAmount: (rawTxAmount - (rawTxAmount * 0.005)).toFixed(2), // factors in 0.5% actual trading fee
+      txGain,
+      txLoss
+    };
+
+    updateLocalPortfolioValues(coinSymbol, 'sell', txInfo);
+  }
 };
+
+/**
+ * assumes you already checked if it has an amount
+ * @param {String} coinSymbol 
+ * @param {Float} priceNow 
+ */
+const canSell = async (coinSymbol, priceNow) => {
+  const portfolioValues = getPortfolioValues();
+
+
+}
 
 const getAllChartData = (request, response) => {
   // this processing will get worse over time, every day will add 288 entries

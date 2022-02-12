@@ -80,6 +80,54 @@ const portfolioCredentialsMap = {
     passphrase: process.env.CBP_PORTFOLIO_2_PASSPHRASE,
     secret: process.env.CBP_PORTFOLIO_2_SECRET
   },
+  'MDT': {
+    id: process.env.CBP_PORTFOLIO_3_ID,
+    key: process.env.CBP_PORTFOLIO_3_KEY,
+    passphrase: process.env.CBP_PORTFOLIO_3_PASSPHRASE,
+    secret: process.env.CBP_PORTFOLIO_3_SECRET
+  },
+  'BLZ': {
+    id: process.env.CBP_PORTFOLIO_4_ID,
+    key: process.env.CBP_PORTFOLIO_4_KEY,
+    passphrase: process.env.CBP_PORTFOLIO_4_PASSPHRASE,
+    secret: process.env.CBP_PORTFOLIO_4_SECRET
+  },
+  'LOOM': {
+    id: process.env.CBP_PORTFOLIO_5_ID,
+    key: process.env.CBP_PORTFOLIO_5_KEY,
+    passphrase: process.env.CBP_PORTFOLIO_5_PASSPHRASE,
+    secret: process.env.CBP_PORTFOLIO_5_SECRET
+  },
+  'XYO': {
+    id: process.env.CBP_PORTFOLIO_6_ID,
+    key: process.env.CBP_PORTFOLIO_6_KEY,
+    passphrase: process.env.CBP_PORTFOLIO_6_PASSPHRASE,
+    secret: process.env.CBP_PORTFOLIO_6_SECRET
+  },
+  'IOTX': {
+    id: process.env.CBP_PORTFOLIO_7_ID,
+    key: process.env.CBP_PORTFOLIO_7_KEY,
+    passphrase: process.env.CBP_PORTFOLIO_7_PASSPHRASE,
+    secret: process.env.CBP_PORTFOLIO_7_SECRET
+  },
+  'ANKR': {
+    id: process.env.CBP_PORTFOLIO_8_ID,
+    key: process.env.CBP_PORTFOLIO_8_KEY,
+    passphrase: process.env.CBP_PORTFOLIO_8_PASSPHRASE,
+    secret: process.env.CBP_PORTFOLIO_8_SECRET
+  },
+  'AMP': {
+    id: process.env.CBP_PORTFOLIO_9_ID,
+    key: process.env.CBP_PORTFOLIO_9_KEY,
+    passphrase: process.env.CBP_PORTFOLIO_9_PASSPHRASE,
+    secret: process.env.CBP_PORTFOLIO_9_SECRET
+  },
+  'SPELL': {
+    id: process.env.CBP_PORTFOLIO_10_ID,
+    key: process.env.CBP_PORTFOLIO_10_KEY,
+    passphrase: process.env.CBP_PORTFOLIO_10_PASSPHRASE,
+    secret: process.env.CBP_PORTFOLIO_10_SECRET
+  }
 };
 
 module.exports = {

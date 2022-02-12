@@ -16,8 +16,9 @@ const {
 
 const run = async () => {
   try {
-    await buy('DNT', '0.0867', 55.00);
-    // await getOrderStatus('DNT', 'fae3bb2e-2c56-4d21-a83b-ed8a1d875794');
+    // await buy('LOOM', 0.0853, 55.00);
+    await sell('LOOM', 0.0855, 638);
+    // console.log(await getOrderStatus('AMP', '8498069d-9437-4ee6-a33d-18b5a7e472f9'));
   } catch (err) {
     console.error(err);
   }
