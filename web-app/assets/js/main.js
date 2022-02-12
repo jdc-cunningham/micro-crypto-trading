@@ -20,11 +20,14 @@ const plotChartData = (chartData) => {
   chartData.forEach(coinPrices => {
     Object.keys(coinPrices).forEach(coinSymbol => {
       dispTarget.innerHTML += `<div class="app-wrapper__chart-area-charts-chart">
-        <h2>${coinSymbol}</h2>
+        <span>
+          <h2>${coinSymbol}</h2>
+          <h3>${coinPrices[coinSymbol].value}</h3>
+        </span>
         <canvas id="${coinSymbol.toLowerCase()}-chart"></canvas>
       </div>`;
 
-      const coinPriceData = coinPrices[coinSymbol].map(element => element.price);
+      const coinPriceData = coinPrices[coinSymbol].prices.map(element => element.price);
       const labels = coinPriceData.map((element, index) => index);
     
       const data = {

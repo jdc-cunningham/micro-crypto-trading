@@ -291,15 +291,19 @@ const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
     updatedCoinPortfolioValues['last_tx_id'] = txId;
 
     if (action === 'buy') {
-      updatedCoinPortfolioValues['balance'] -= txPrice;
-      updatedCoinPortfolioValues['amt'] = txAmount;
+      updatedCoinPortfolioValues['balance'] -= txAmount;
+      updatedCoinPortfolioValues['amount'] = txSize;
       updatedCoinPortfolioValues['prev_buy_price'] = txPrice;
-      updatedCoinPortfolioValues['gain'] += txGain;
     } else {
       updatedCoinPortfolioValues['balance'] += txAmount;
-      updatedCoinPortfolioValues['amt'] = txSize;
+      updatedCoinPortfolioValues['amount'] = txSize;
       updatedCoinPortfolioValues['prev_sell_price'] = txPrice;
-      updatedCoinPortfolioValues['loss'] += txLoss;
+
+      if (txLoss) {
+        updatedCoinPortfolioValues['loss'] += txLoss;
+      } else {      
+        updatedCoinPortfolioValues['gain'] += txGain;
+      }
     }
 
     const updatedLocalPortfolioValues = {
@@ -339,8 +343,16 @@ const buy = async (coinSymbol, coinPrice, coinPortfolioBalance) => {
   if (!coinPurchased) {
     writeError(`failed to buy ${coinSymbol}`);
   } else {
-    console.log(coinPurchased);
-    // updateLocalPortfolioValues();
+    const { id, price, size } = coinPurchased.data;
+
+    const txInfo = {
+      txId: id,
+      txPrice: price,
+      txSize: size,
+      txAmount: parseInt(price) * parseInt(size)
+    };
+
+    updateLocalPortfolioValues(coinSymbol, 'buy', txInfo);
   }
 };
 
@@ -349,7 +361,7 @@ const buy = async (coinSymbol, coinPrice, coinPortfolioBalance) => {
  *
  * @param {String} coinSymbol eg. DNT
  * @param {Float} coinSalePrice determined salePrice from algo
- * @param {Float} coinSaleSize size based on amt in portfolio
+ * @param {Float} coinSaleSize size based on amount in portfolio
  *
  */
 const sell = async (coinSymbol, coinSalePrice, coinSaleSize) => {
@@ -374,11 +386,20 @@ const getAllChartData = (request, response) => {
     }
   });
 
+  const portfolioValuesRaw = fs.readFileSync('./data/portfolio_values.json', 'utf8', (err, data) => {
+    if (data) {
+      return data;
+    } else {
+      return false;
+    }
+  });
+
   if (!localRawPrices) {
     writeError('Failed to read local crypto prices');
     response.status('500').json({err: true});
   } else {
     const localPrices = JSON.parse(localRawPrices);
+    const portfolioData = portfolioValuesRaw ? JSON.parse(portfolioValuesRaw) : {};
 
     // filter out by today's date
     // https://stackoverflow.com/a/30158617/2710227
@@ -392,9 +413,14 @@ const getAllChartData = (request, response) => {
 
     response.status('200').json({
       data: Object.keys(localPrices).map(coinSymbol => ({
-        [coinSymbol]: localPrices[coinSymbol].filter(price =>
-          price.timestamp >= todayStartingTimestamp && price.timestamp <= todayEndingTimestamp
-        )
+        [coinSymbol]: {
+          value: portfolioData[coinSymbol]?.balance
+            ? `$${portfolioData[coinSymbol].balance.toFixed(2)}`
+            : `$${pasreFloat(portfolioData[coinSymbol].amount) * localPrices[coinSymbol][0]}`,
+          prices: localPrices[coinSymbol].filter(price =>
+            price.timestamp >= todayStartingTimestamp && price.timestamp <= todayEndingTimestamp
+          )
+        }
       }))
     });
   }
