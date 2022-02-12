@@ -15,7 +15,7 @@ const {
 } = require('./globals.js');
 
 const run = async () => {
-  buy('DNT', );
+  buy('DNT', '0.0860', 55.00);
 };
 
 run();

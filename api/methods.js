@@ -1,7 +1,7 @@
 const fs = require('fs');
 const crypto = require('crypto');
 const axios = require('axios');
-const { cbpProductIdMap } = require('./globals.js');
+const { cbpProductIdMap, portfolioCredentialsMap, tradingFee } = require('./globals.js');
 
 const getCoinMarketCapCryptoPrices = (coinIdCommaStr) => {
   return new Promise((resolve, reject) => {
