@@ -4,6 +4,10 @@ Have to let it run for a month and see if it survives, does it continue to trade
 
 ### Fails
 02/12/2022
+Sell price is not high enough odd
+
+The logic was wrong to check if order was complete or should sell vs. buy as a result double buys (with left over money) or failed to buy
+
 First CRON run after fixing path issues, it's trying to trade with not enough money
 
 02/11/2022

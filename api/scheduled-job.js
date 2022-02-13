@@ -35,19 +35,26 @@ const runScript = async () => {
       const coinPrice = coinCurrentPrices.data[localCoinMap[coinSymbol].id].quote.USD.price;
       const portfolio = portfolioValues[coinSymbol];
 
-      if (portfolio.last_tx_id && !portfolio.last_tx_complete) {
+      if (
+        (portfolio.last_tx_id && !portfolio.last_tx_complete)
+        || (portfolio.last_tx_complete && parseInt(portfolio.amount) > 0)
+      ) {
         // check if it's complete
-        const orderStatus = getOrderStatus(coinSymbol, portfolio.last_tx_id);
+        const orderStatus = portfolio.last_tx_id ? await getOrderStatus(coinSymbol, portfolio.last_tx_id) : 'done';
 
         if (orderStatus === 'done') {
           portfolioValues[coinSymbol].last_tx_id = ''; // reset
           portfolioValues[coinSymbol].last_tx_complete = true;
 
-          const sellAtGainPrice = (portfolio.prev_buy_price * 1.02).toFixed(2);
+          const sellAtGainPrice = portfolio.prev_buy_price > coinPrice
+            ? (portfolio.prev_buy_price * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit))
+            : (coinPrice * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit));
 
-          if (coinPrice >= sellAtGainPrice) {
-            // can sell
+          // can sell
+          try {
             await sell(coinSymbol, sellAtGainPrice, portfolio.amount);
+          } catch (err) {
+            console.error(err);
           }
         }
       } else {
@@ -64,14 +71,18 @@ const runScript = async () => {
           buySubtractionMultiplier = 100;
         }
 
-        await buy(
-          coinSymbol,
-          truncatePriceUnit(
-            parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
-            smallestPriceUnit
-          ),
-          portfolio.balance
-        ); // * 5 is hopefully definitely under current price
+        try {
+          await buy(
+            coinSymbol,
+            truncatePriceUnit(
+              parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
+              smallestPriceUnit
+            ),
+            portfolio.balance
+          ); // * 5 is hopefully definitely under current price
+        } catch (err) {
+          console.error(err);
+        }
       }
 
       console.log(Date.now());
