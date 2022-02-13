@@ -23,8 +23,6 @@ const runScript = async () => {
 
   const pricesUpdated = updateLocalCryptoPrices(coinCurrentPrices.data);
 
-  console.log(pricesUpdated);
-
   if (pricesUpdated) {
     // loop through all coins, find any that have 0 amt and or no prev transaction id
     // if you have money to buy, buy
