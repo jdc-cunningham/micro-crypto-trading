@@ -91,3 +91,13 @@ const checkErrors = () => {
 
 getChartData();
 checkErrors();
+
+// repaint every 5 mins
+setInterval(() => {
+  const dispTarget = document.getElementById('app-wrapper__chart-area-charts');
+  const errorDisplay = document.getElementById('text-target');
+  dispTarget.innerHTML = '';
+  errorDisplay.innerText = '';
+  getChartData();
+  checkErrors();
+}, 300000);
