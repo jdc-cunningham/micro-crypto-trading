@@ -382,10 +382,12 @@ const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
       updatedCoinPortfolioValues['balance'] = (updatedCoinPortfolioValues['balance'] - parseFloat(txAmount)).toFixed(2);
       updatedCoinPortfolioValues['amount'] = txSize;
       updatedCoinPortfolioValues['prev_buy_price'] = txPrice;
+      updatedCoinPortfolioValues['current_order_type'] = 'buy';
     } else {
-      updatedCoinPortfolioValues['balance'] = (parseFloat(updatedCoinPortfolioValues['balance']) + parseFloat(txAmount)).toFixed(2);
-      updatedCoinPortfolioValues['amount'] = 0; // should have sold all
+      // updatedCoinPortfolioValues['balance'] = (parseFloat(updatedCoinPortfolioValues['balance']) + parseFloat(txAmount)).toFixed(2);
+      // updatedCoinPortfolioValues['amount'] = 0; // should have sold all
       updatedCoinPortfolioValues['prev_sell_price'] = txPrice;
+      updatedCoinPortfolioValues['current_order_type'] = 'sell';
 
       if (txLoss) {
         updatedCoinPortfolioValues['loss'] = parseFloat(updatedCoinPortfolioValues['loss']) + parseFloat(txLoss);
@@ -557,9 +559,9 @@ const getAllChartData = (request, response) => {
     response.status('200').json({
       data: Object.keys(localPrices).map(coinSymbol => ({
         [coinSymbol]: {
-          value: !portfolioData[coinSymbol]?.amount
+          value: (portfolioData[coinSymbol].last_tx_complete && !portfolioData[coinSymbol].amount)
             ? `${parseFloat(portfolioData[coinSymbol].balance).toFixed(2)}`
-            : `${parseFloat((portfolioData[coinSymbol].amount) * localPrices[coinSymbol][0].price).toFixed(2)}`,
+            : `${parseFloat((portfolioData[coinSymbol].amount) * parseFloat(portfolioData[coinSymbol].prev_buy_price)).toFixed(2)}`,
           prices: localPrices[coinSymbol].filter(price =>
             price.timestamp >= todayStartingTimestamp && price.timestamp <= todayEndingTimestamp
           )

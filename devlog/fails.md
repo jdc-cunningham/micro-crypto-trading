@@ -4,6 +4,14 @@ Have to let it run for a month and see if it survives, does it continue to trade
 
 ### Fails
 02/13/2022
+Stuff is out of sync, chart is not displaying the right actual price vs. end order price
+
+The transaction tracking is off... particularly with manually updated
+
+No way to cancel current buy/buy back in, would just wait as price trippled
+
+Had to manually cancel orders to get it to rebuy in, will add that in
+
 Had to catch it up and fix the data
 
 Some transactions are complete but not removing the tx id so it's not selling

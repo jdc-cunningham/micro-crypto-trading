@@ -10,7 +10,8 @@
     "last_tx_complete": false,
     "max_weekly_loss": 0.14,
     "smallest_amount_unit": 0.0001,
-    "smallest_price_unit": 0.0001
+    "smallest_price_unit": 0.0001,
+    "current_order_type": ""
   },
   "MDT": {
     "balance": 55,
@@ -23,7 +24,8 @@
     "last_tx_complete": false,
     "max_weekly_loss": 0.18,
     "smallest_amount_unit": 1,
-    "smallest_price_unit": 0.00001
+    "smallest_price_unit": 0.00001,
+    "current_order_type": ""
   },
   "BLZ": {
     "balance": 55,
@@ -36,7 +38,8 @@
     "last_tx_complete": false,
     "max_weekly_loss": 0.27,
     "smallest_amount_unit": 0.1,
-    "smallest_price_unit": 0.0001
+    "smallest_price_unit": 0.0001,
+    "current_order_type": ""
   },
   "LOOM": {
     "balance": 55,
@@ -49,7 +52,8 @@
     "last_tx_complete": false,
     "max_weekly_loss": 0.29,
     "smallest_amount_unit": 0.1,
-    "smallest_price_unit": 0.0001
+    "smallest_price_unit": 0.0001,
+    "current_order_type": ""
   },
   "XYO": {
     "balance": 55,
@@ -62,7 +66,8 @@
     "last_tx_complete": false,
     "max_weekly_loss": 0.21,
     "smallest_amount_unit": 0.000001,
-    "smallest_price_unit": 0.000001
+    "smallest_price_unit": 0.000001,
+    "current_order_type": ""
   },
   "IOTX": {
     "balance": 55,
@@ -75,7 +80,8 @@
     "last_tx_complete": false,
     "max_weekly_loss": 0.33,
     "smallest_amount_unit": 1,
-    "smallest_price_unit": 0.00001
+    "smallest_price_unit": 0.00001,
+    "current_order_type": ""
   },
   "ANKR": {
     "balance": 55,
@@ -88,7 +94,8 @@
     "last_tx_complete": false,
     "max_weekly_loss": 0.16,
     "smallest_amount_unit": 1,
-    "smallest_price_unit": 0.00001
+    "smallest_price_unit": 0.00001,
+    "current_order_type": ""
   },
   "AMP": {
     "balance": 55,
@@ -101,7 +108,8 @@
     "last_tx_complete": false,
     "max_weekly_loss": 0.19,
     "smallest_amount_unit": 1,
-    "smallest_price_unit": 0.00001
+    "smallest_price_unit": 0.00001,
+    "current_order_type": ""
   },
   "SPELL": {
     "balance": 55,
@@ -114,6 +122,7 @@
     "last_tx_complete": false,
     "max_weekly_loss": 0.25,
     "smallest_amount_unit": 0.00001,
-    "smallest_price_unit": 0.00001
+    "smallest_price_unit": 0.00001,
+    "current_order_type": ""
   }
 }

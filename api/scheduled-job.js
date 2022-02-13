@@ -43,8 +43,8 @@ const runScript = async () => {
         const orderStatus = portfolio.last_tx_id ? await getOrderStatus(coinSymbol, portfolio.last_tx_id) : 'done';
 
         if (orderStatus === 'done') {
-          portfolioValues[coinSymbol].last_tx_id = ''; // reset
-          portfolioValues[coinSymbol].last_tx_complete = true;
+          portfolio.last_tx_id = ''; // reset
+          portfolio.last_tx_complete = true;
 
           const sellAtGainPrice = portfolio.prev_buy_price > coinPrice
             ? (portfolio.prev_buy_price * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit))
@@ -62,6 +62,8 @@ const runScript = async () => {
         const smallestPriceUnit = portfolio.smallest_price_unit;
         const priceUnitDecimals = countDecimals(smallestPriceUnit);
         let buySubtractionMultiplier = 0;
+        portfolio.last_tx_id = ''; // reset
+        portfolio.last_tx_complete = true;
         
         if (priceUnitDecimals <= 4) {
           buySubtractionMultiplier = 10;
