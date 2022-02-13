@@ -4,6 +4,8 @@ Have to let it run for a month and see if it survives, does it continue to trade
 
 ### Fails
 02/13/2022
+Had to catch it up and fix the data
+
 Some transactions are complete but not removing the tx id so it's not selling
 
 The next sell price was missed, I had to cancel it so it would reach the closest sell price, for MDT
