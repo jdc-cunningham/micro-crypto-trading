@@ -41,7 +41,7 @@ const runScript = async () => {
 
         if (orderStatus === 'done') {
           portfolioValues[coinSymbol].last_tx_id = ''; // reset
-          portfolioValues[coinSymbol].last_tx_id = true;
+          portfolioValues[coinSymbol].last_tx_complete = true;
 
           const sellAtGainPrice = (portfolio.prev_buy_price * 1.02).toFixed(2);
 

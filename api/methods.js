@@ -549,7 +549,7 @@ const getAllChartData = (request, response) => {
     // tz https://stackoverflow.com/a/28149561/2710227
     const tzOffset = (new Date()).getTimezoneOffset() * 60000;
     const todaysDate = new Date(Date.now() - tzOffset).toISOString().split('T')[0];
-    const todayStartingTimestamp = new Date(todaysDate).getTime();
+    const todayStartingTimestamp = new Date(todaysDate).getTime()  + (6 * 60 * 60 * 1000); // push to 12 PM
     const todayEndingTimestamp = todayStartingTimestamp + (24 * 60 * 60 * 1000);
 
     // I almost did this a poor way but I thought for 2 seconds and use the timestamp route vs. date comparison
