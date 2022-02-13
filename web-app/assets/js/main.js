@@ -22,7 +22,7 @@ const plotChartData = (chartData) => {
       dispTarget.innerHTML += `<div class="app-wrapper__chart-area-charts-chart">
         <span>
           <h2>${coinSymbol}</h2>
-          <h3>${coinPrices[coinSymbol].value}</h3>
+          <h3 class="${parseFloat(coinPrices[coinSymbol].value) >= 55 ? 'gain' : 'loss'}">$${coinPrices[coinSymbol].value}</h3>
         </span>
         <canvas id="${coinSymbol.toLowerCase()}-chart"></canvas>
       </div>`;
@@ -75,7 +75,11 @@ const checkErrors = () => {
     .then(function (response) {
       // handle success
       if (response.data.errors && Object.keys(response.data.errors).length) {
-        alert(`errors occured \r\n ${JSON.stringify(response.data)}`);
+        const errors = response.data.errors;
+        const errorDisplay = document.getElementById('text-target');
+        Object.keys(errors).forEach(errorTimestamp => {
+          errorDisplay.innerText += `${errorTimestamp} ${errors[errorTimestamp]} \r\n`;
+        });
       }
     })
     .catch(function (error) {

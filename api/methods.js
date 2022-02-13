@@ -93,6 +93,7 @@ const updateLocalCryptoPrices = (currentCoinMarketCapCryptoPrices) => {
 
   if (!localRawPrices) {
     writeError('Failed to read local crypto prices');
+    return false;
   } else {
     const localPrices = JSON.parse(localRawPrices);
     const processTime = Date.now();
@@ -115,9 +116,12 @@ const updateLocalCryptoPrices = (currentCoinMarketCapCryptoPrices) => {
     fs.writeFile('./data/price_tracking.json', JSON.stringify(localPrices), 'utf8', (err, data) => {
       if (err) {
         writeError(`Failed to write new prices, ${JSON.stringify(err).substring(0, 24)}`);
+        return false;
       }
     });
   }
+
+  return true;
 }
 
 const updateTxStatus = (coinSymbol, orderId, status) => {
@@ -241,8 +245,8 @@ const createOrder = ({
         });
       })
       .catch(error => {
+        console.log(error);
         writeError(`Failed to create ${side} order for ${currencySymbol}`);
-        console.log(typeof error);
         reject(error);
       });
   });
@@ -279,7 +283,6 @@ const getPortfolioBalance = profileId => {
       },
     })
       .then((response) => {
-        console.log(response);
         resolve({
           data: response.data
         });
@@ -319,7 +322,6 @@ const getPortfolios = () => {
       },
     })
       .then((response) => {
-        console.log(response);
         resolve({
           data: response?.data.filter(profile => profile.active)
         });
@@ -359,7 +361,6 @@ const getPortfolioValues = () => {
 const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
   // txAmount can flex between units of a coin and USD depending on action
   const { txAmount, txSize, txPrice, txLoss, txGain, txId } = txInfo;
-  console.log(txInfo);
 
   const localPortfolioValuesRaw = fs.readFileSync('./data/portfolio_values.json', 'utf8', (err, data) => {
     if (data) {
@@ -466,16 +467,12 @@ const sell = async (coinSymbol, coinSalePrice, coinSaleSize) => {
   if (!coinSold) {
     writeError(`failed to sell ${coinSymbol}`);
   } else {
-    console.log(coinSold);
     const { id, price, size } = coinSold.data;
     const rawTxAmount = parseFloat(price) * parseFloat(size);
     const portfolioValues = getPortfolioValues();
-    console.log(portfolioValues);
     const {amount, balance, prev_buy_price } = portfolioValues[coinSymbol];
     const prevWalletValue = parseFloat(balance) + (parseInt(amount) * parseFloat(prev_buy_price));
     const sellReturn = (rawTxAmount - (rawTxAmount * 0.005)).toFixed(2);
-
-    console.log(prevWalletValue);
 
     let txGain;
     let txLoss;
@@ -499,15 +496,27 @@ const sell = async (coinSymbol, coinSalePrice, coinSaleSize) => {
   }
 };
 
-/**
- * assumes you already checked if it has an amount
- * @param {String} coinSymbol 
- * @param {Float} priceNow 
- */
-const canSell = async (coinSymbol, priceNow) => {
-  const portfolioValues = getPortfolioValues();
+// https://stackoverflow.com/a/17369245/2710227
+const countDecimals = (someFloat) => {
+  Number.prototype.countDecimals = function () {
+    if (Math.floor(this.valueOf()) === this.valueOf()) return 0;
+
+    var str = this.toString();
+    if (str.indexOf(".") !== -1 && str.indexOf("-") !== -1) {
+        return str.split("-")[1] || 0;
+    } else if (str.indexOf(".") !== -1) {
+        return str.split(".")[1].length || 0;
+    }
+    return str.split("-")[1] || 0;
+  }
+
+  return someFloat.countDecimals();
+}
 
 
+const truncatePriceUnit = (price, smallestPriceUnit) => {
+  const priceParts = String(price).split('.');
+  return parseFloat(priceParts[0] + '.' + priceParts[1].substring(0, countDecimals(smallestPriceUnit)));
 }
 
 const getAllChartData = (request, response) => {
@@ -548,9 +557,9 @@ const getAllChartData = (request, response) => {
     response.status('200').json({
       data: Object.keys(localPrices).map(coinSymbol => ({
         [coinSymbol]: {
-          value: portfolioData[coinSymbol]?.balance
-            ? `$${portfolioData[coinSymbol].balance.toFixed(2)}`
-            : `$${pasreFloat(portfolioData[coinSymbol].amount) * localPrices[coinSymbol][0]}`,
+          value: !portfolioData[coinSymbol]?.amount
+            ? `${parseFloat(portfolioData[coinSymbol].balance).toFixed(2)}`
+            : `${parseFloat((portfolioData[coinSymbol].amount) * localPrices[coinSymbol][0].price).toFixed(2)}`,
           prices: localPrices[coinSymbol].filter(price =>
             price.timestamp >= todayStartingTimestamp && price.timestamp <= todayEndingTimestamp
           )
@@ -576,6 +585,14 @@ const getErrors = (request, response) => {
   }
 }
 
+const delayNextIteration = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(true);
+    }, 500);
+  });
+}
+
 module.exports = {
   getCoinMarketCapCryptoPrices,
   getCoinMarketCapCryptoMap,
@@ -587,5 +604,9 @@ module.exports = {
   sell,
   getAllChartData,
   getErrors,
-  getOrderStatus
+  getOrderStatus,
+  getPortfolioValues,
+  countDecimals,
+  truncatePriceUnit,
+  delayNextIteration
 }

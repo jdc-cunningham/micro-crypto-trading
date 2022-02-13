@@ -10,6 +10,20 @@ h1 {
   margin-left: 1rem;
 }
 
+h6 {
+  font-size: 1.25rem;
+  font-weight: medium;
+  margin-bottom: 0.5rem;
+}
+
+.gain {
+  color: green;
+}
+
+.loss {
+  color: firebrick;
+}
+
 .app-wrapper {
   display: flex;
   align-items: center;
@@ -42,6 +56,18 @@ h1 {
   width: 100%;
   height: auto;
   overflow-y: auto;
+}
+
+#error-display {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+#error-display p#text-target {
+  color: firebrick;
 }
 
 .app-wrapper__chart-area-charts-chart {
