@@ -4,19 +4,24 @@ Disclaimer: Also note the local portfolio balance tracker can lose/gain cents ov
 
 ### Stack
 - web app
-  - ReactJS and ChartJS
+  - Plain JS and ChartJS
 - API
-  - NodeJS and ExpressJS, ran with pm2
+  - NodeJS and ExpressJS ran with pm2 
+  - data stored as JSON files no db
+- Scheduler
+  - CRON 5-min intervals mostly due to limited CMC API calls
 
 ### Data/Trading/Algo
-- CoinmarketCap for price info (using free api key)
+- CoinMarketCap for price info (using free api key 333 calls per day)
 - Coinbase Pro for actual trades
-- no algo other than just basic price diff check against thresholds
+- no algo, just buy/hold sell if at least 2% gain
 
-### How far does this repo go
-The portfolio generation in CBP is manual. You have a cap of 10, I just messed around with 9. I targetted the cheapest coins with the best "indication" of action.
+### What's in here?
+* price check by CMC
+* portfolio listing, buying/selling, trade statuses on CBP
+* error logging to file/displayed on chart front end
 
-See the development branch for my thoughts as I made this thing over time
+The prices are checked every 5 minutes and is charted by the day (timestamps)
 
 ### Did this make money?
 ANSWER - I ran this and checked in weekly increments
