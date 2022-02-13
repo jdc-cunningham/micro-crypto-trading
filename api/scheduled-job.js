@@ -35,10 +35,7 @@ const runScript = async () => {
       const coinPrice = coinCurrentPrices.data[localCoinMap[coinSymbol].id].quote.USD.price;
       const portfolio = portfolioValues[coinSymbol];
 
-      if (
-        (portfolio.last_tx_id && !portfolio.last_tx_complete)
-        || (portfolio.last_tx_complete && parseInt(portfolio.amount) > 0)
-      ) {
+      if (portfolio.amount && portfolio.current_order_type !== 'sell' && portfolio.last_tx_complete) {
         // check if it's complete
         const orderStatus = portfolio.last_tx_id ? await getOrderStatus(coinSymbol, portfolio.last_tx_id) : 'done';
 
@@ -53,11 +50,12 @@ const runScript = async () => {
           // can sell
           try {
             await sell(coinSymbol, sellAtGainPrice, portfolio.amount);
+            console.log(`${Date.now()} ${coinSymbol} sell order placed`);
           } catch (err) {
             console.error(err);
           }
         }
-      } else {
+      } else if (await getOrderStatus(coinSymbol, portfolio.last_tx_id) === 'done') {
         // can buy
         const smallestPriceUnit = portfolio.smallest_price_unit;
         const priceUnitDecimals = countDecimals(smallestPriceUnit);
@@ -82,12 +80,15 @@ const runScript = async () => {
             ),
             portfolio.balance
           ); // * 5 is hopefully definitely under current price
+          
+          console.log(`${Date.now()} ${coinSymbol} buy order placed`);
         } catch (err) {
           console.error(err);
         }
+      } else {
+        console.log(`${Date.now()} ${coinSymbol} ${portfolio.current_order_type} order in progress`);
       }
 
-      console.log(Date.now());
       await delayNextIteration();
     };
   }

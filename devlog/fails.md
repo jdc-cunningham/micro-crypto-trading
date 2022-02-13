@@ -4,6 +4,10 @@ Have to let it run for a month and see if it survives, does it continue to trade
 
 ### Fails
 02/13/2022
+Turning off active trades and syncing portfolio_values.json
+
+Really screwing it up, lots of errors now
+
 Stuff is out of sync, chart is not displaying the right actual price vs. end order price
 
 The transaction tracking is off... particularly with manually updated
