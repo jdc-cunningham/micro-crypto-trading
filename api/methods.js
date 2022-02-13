@@ -561,7 +561,7 @@ const getAllChartData = (request, response) => {
         [coinSymbol]: {
           value: (portfolioData[coinSymbol].last_tx_complete && !portfolioData[coinSymbol].amount)
             ? `${parseFloat(portfolioData[coinSymbol].balance).toFixed(2)}`
-            : `${parseFloat((portfolioData[coinSymbol].amount) * parseFloat(portfolioData[coinSymbol].prev_buy_price)).toFixed(2)}`,
+            : `${parseInt((portfolioData[coinSymbol].amount) * parseFloat(localPrices[coinSymbol][0].price)).toFixed(2)}`,
           prices: localPrices[coinSymbol].filter(price =>
             price.timestamp >= todayStartingTimestamp && price.timestamp <= todayEndingTimestamp
           )
