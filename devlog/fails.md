@@ -3,6 +3,11 @@ Once I "turn the system on" barring any weird CRON-job file issues, I can't modi
 Have to let it run for a month and see if it survives, does it continue to trade on its own.
 
 ### Fails
+02/13/2022
+Some transactions are complete but not removing the tx id so it's not selling
+
+The next sell price was missed, I had to cancel it so it would reach the closest sell price, for MDT
+
 02/12/2022
 Sell price is not high enough odd
 
