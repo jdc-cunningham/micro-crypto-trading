@@ -25,3 +25,9 @@ The prices are checked every 5 minutes and is charted by the day (timestamps)
 
 ### Did this make money?
 ANSWER - I ran this and checked in weekly increments
+
+### Tips
+- mock out the endpoints and call against that until the "algo" or "scheduled-job script" works well
+
+### Note
+The pi branch is the actual code that ran, it may be slightly out of sync but the only difference should be the included full paths for CRON to work correctly.

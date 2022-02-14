@@ -390,21 +390,11 @@ const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
     updatedCoinPortfolioValues['last_tx_complete'] = false;
 
     if (action === 'buy') {
-      updatedCoinPortfolioValues['balance'] = (updatedCoinPortfolioValues['balance'] - parseFloat(txAmount)).toFixed(2);
-      updatedCoinPortfolioValues['amount'] = txSize;
       updatedCoinPortfolioValues['prev_buy_price'] = txPrice;
       updatedCoinPortfolioValues['current_order_type'] = 'buy';
     } else {
-      // updatedCoinPortfolioValues['balance'] = (parseFloat(updatedCoinPortfolioValues['balance']) + parseFloat(txAmount)).toFixed(2);
-      // updatedCoinPortfolioValues['amount'] = 0; // should have sold all
       updatedCoinPortfolioValues['prev_sell_price'] = txPrice;
       updatedCoinPortfolioValues['current_order_type'] = 'sell';
-
-      if (txLoss) {
-        updatedCoinPortfolioValues['loss'] = parseFloat(updatedCoinPortfolioValues['loss']) + parseFloat(txLoss);
-      } else {      
-        updatedCoinPortfolioValues['gain'] = parseFloat(updatedCoinPortfolioValues['gain']) + parseFloat(txGain);
-      }
     }
 
     const updatedLocalPortfolioValues = {
