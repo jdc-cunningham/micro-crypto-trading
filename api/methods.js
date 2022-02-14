@@ -256,7 +256,7 @@ const createOrder = ({
         });
       })
       .catch(error => {
-        console.log(error.data);
+        console.log(error);
         writeError(`Failed to create ${side} order for ${currencySymbol}`);
         reject(error);
       });
@@ -522,6 +522,16 @@ const truncatePriceUnit = (price, smallestPriceUnit) => {
   return parseFloat(priceParts[0] + '.' + priceParts[1].substring(0, countDecimals(smallestPriceUnit)));
 }
 
+const getPortfolioValue = (lastTxComplete, coinAmount, coinCurrentPrice, portfolioAmount, portfolioBalance) => {
+  if (lastTxComplete && !coinAmount) {
+    return `${parseFloat(portfolioBalance).toFixed(2)}`;
+  } else if (portfolioAmount) {
+    return `${parseInt((coinAmount) * parseFloat(coinCurrentPrice)).toFixed(2)}`;
+  } else {
+    return portfolioAmount;
+  }
+}
+
 const getAllChartData = (request, response) => {
   // this processing will get worse over time, every day will add 288 entries
   const localRawPrices = fs.readFileSync('/home/pi/micro-crypto-trading/api/data/price_tracking.json', 'utf8', (err, data) => {
@@ -560,9 +570,12 @@ const getAllChartData = (request, response) => {
     response.status('200').json({
       data: Object.keys(localPrices).map(coinSymbol => ({
         [coinSymbol]: {
-          value: (portfolioData[coinSymbol].last_tx_complete && !portfolioData[coinSymbol].amount)
-            ? `${parseFloat(portfolioData[coinSymbol].balance).toFixed(2)}`
-            : `${parseInt((portfolioData[coinSymbol].amount) * parseFloat(localPrices[coinSymbol][0].price)).toFixed(2)}`,
+          value: getPortfolioValue(
+            portfolioData[coinSymbol].last_tx_complete,
+            parseFloat(portfolioData[coinSymbol].amount).toFixed(2),
+            parseFloat(localPrices[coinSymbol][0].price).toFixed(2),
+            parseFloat(portfolioData[coinSymbol].balance).toFixed(2), 
+          ),
           prices: localPrices[coinSymbol].filter(price =>
             price.timestamp >= todayStartingTimestamp && price.timestamp <= todayEndingTimestamp
           )

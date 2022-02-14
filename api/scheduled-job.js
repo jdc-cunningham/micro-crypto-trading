@@ -72,12 +72,12 @@ const runScript = async () => {
           try {
             await buy(
               coinSymbol,
-              truncatePriceUnit(
-                parseFloat(coinPrice) - (
-                  isIotx ? 0.001 : (smallestPriceUnit * buySubtractionMultiplier)
+              isIotx
+                ? parseFloat(coinPrice).toFixed(5) - 0.001
+                : truncatePriceUnit(
+                  parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
+                  smallestPriceUnit
                 ),
-                smallestPriceUnit
-              ),
               portfolio.balance
             ); // * 5 is hopefully definitely under current price
 
