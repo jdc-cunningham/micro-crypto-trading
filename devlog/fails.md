@@ -4,6 +4,8 @@ Have to let it run for a month and see if it survives, does it continue to trade
 
 ### Fails
 02/13/2022
+Stopped trading after recent changes, after sell went through
+
 Turning off active trades and syncing portfolio_values.json
 
 Really screwing it up, lots of errors now

@@ -36,33 +36,25 @@ const runScript = async () => {
       const portfolio = portfolioValues[coinSymbol];
 
       if (portfolio.amount && portfolio.current_order_type !== 'sell' && portfolio.last_tx_complete) {
-        // check if it's complete
-        const orderStatus = portfolio.last_tx_id ? await getOrderStatus(coinSymbol, portfolio.last_tx_id) : 'done';
+        const sellAtGainPrice = portfolio.prev_buy_price > coinPrice
+          ? (portfolio.prev_buy_price * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit))
+          : (coinPrice * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit));
 
-        if (orderStatus === 'done') {
-          portfolio.last_tx_id = ''; // reset
-          portfolio.last_tx_complete = true;
-
-          const sellAtGainPrice = portfolio.prev_buy_price > coinPrice
-            ? (portfolio.prev_buy_price * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit))
-            : (coinPrice * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit));
-
-          // can sell
-          try {
-            await sell(coinSymbol, sellAtGainPrice, portfolio.amount);
-            console.log(`${Date.now()} ${coinSymbol} sell order placed`);
-          } catch (err) {
-            console.error(err);
-          }
+        // can sell
+        try {
+          await sell(coinSymbol, sellAtGainPrice, portfolio.amount);
+          console.log(`${Date.now()} ${coinSymbol} sell order placed`);
+        } catch (err) {
+          console.error(err);
         }
       } else if (await getOrderStatus(coinSymbol, portfolio.last_tx_id) === 'done') {
         // can buy
         const smallestPriceUnit = portfolio.smallest_price_unit;
         const priceUnitDecimals = countDecimals(smallestPriceUnit);
         let buySubtractionMultiplier = 0;
-        portfolio.last_tx_id = ''; // reset
-        portfolio.last_tx_complete = true;
-        
+        portfolioValues.last_tx_id = ''; // reset
+        portfolioValues.last_tx_complete = true;
+
         if (priceUnitDecimals <= 4) {
           buySubtractionMultiplier = 10;
         } else if (priceUnitDecimals === 5) {
@@ -80,13 +72,13 @@ const runScript = async () => {
             ),
             portfolio.balance
           ); // * 5 is hopefully definitely under current price
-          
+
           console.log(`${Date.now()} ${coinSymbol} buy order placed`);
         } catch (err) {
           console.error(err);
         }
       } else {
-        console.log(`${Date.now()} ${coinSymbol} ${portfolio.current_order_type} order in progress`);
+        console.log(`${coinSymbol} ${portfolio.current_order_type} order in progress`);
       }
 
       await delayNextIteration();
