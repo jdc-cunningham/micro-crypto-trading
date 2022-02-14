@@ -30,7 +30,6 @@ const runScript = async () => {
     // if you have money to buy, buy
     // if it's sell, check that it's 2% above prev price
     const portfolioValues = getPortfolioValues();
-    let looper = 0;
 
     // https://stackoverflow.com/a/37576787
     for (const coinSymbol of Object.keys(portfolioValues)) {
@@ -39,8 +38,10 @@ const runScript = async () => {
 
       let orderStatus;
 
-      if (portfolio.current_order_type === 'sell') {
-        orderStatus = await getOrderStatus(coinSymbol, portfolio.last_tx_id);
+      if (portfolio.current_order_type === 'sell' || (portfolio.current_order_type === "" && parseFloat(portfolio.balance) > 0)) {
+        orderStatus = portfolio.current_order_type === "" ? 'done' : await getOrderStatus(coinSymbol, portfolio.last_tx_id);
+
+        console.log(`${coinSymbol} sell order status ${JSON.stringify(orderStatus)}`);
 
         if (orderStatus === 'done') {
           portfolio.current_order_type = '';
@@ -48,8 +49,8 @@ const runScript = async () => {
           portfolio.amount = 0;
           portfolio.last_tx_id = '';
           portfolio.last_tx_complete = true;
-          portfolio.gain = parseFloat(portfolioBalance) > 55 ? parseFloat(portfolioBalance) - 55 : 0;
-          portfolio.loss = parseFloat(portfolioBalance) < 55 ? 55 - parseFloat(portfolioBalance) : 0;
+          portfolio.gain = parseFloat(portfolio.balance) > 55 ? parseFloat(portfolio.balance) - 55 : 0;
+          portfolio.loss = parseFloat(portfolio.balance) < 55 ? 55 - parseFloat(portfolio.balance) : 0;
           updatePortfolioValues(portfolioValues);
 
           // can buy
@@ -58,7 +59,7 @@ const runScript = async () => {
           let buySubtractionMultiplier = 0;
 
           if (coinSymbol === 'IOTX') {
-            buySubtractionMultiplier = 100;
+            buySubtractionMultiplier = 50;
           } else if (priceUnitDecimals <= 4) {
             buySubtractionMultiplier = 10;
           } else if (priceUnitDecimals === 5) {
@@ -82,8 +83,10 @@ const runScript = async () => {
             console.error(err);
           }
         }
-      } else if (portfolio.current_order_type === 'buy' || (portfolio.current_order_type === "" && parseFloat(portfolio.balance) > 0)) {
+      } else if (portfolio.current_order_type === 'buy') {
         orderStatus = await getOrderStatus(coinSymbol, portfolio.last_tx_id);
+
+        console.log(`${coinSymbol} buy order status ${JSON.stringify(orderStatus)}`);
 
         if (orderStatus === 'done') {
           portfolio.current_order_type = '';
