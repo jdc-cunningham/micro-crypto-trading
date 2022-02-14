@@ -4,9 +4,13 @@ Have to let it run for a month and see if it survives, does it continue to trade
 
 ### Fails
 02/14/2022
+Put logic in wrong spot
+
 Cannot get IOTX to buy missed gain
 
 Updating logic to trade since it didn't buy more after selling
+
+New updates failing, maybe expecting wrong order status
 
 02/13/2022
 Stopped trading after recent changes, after sell went through
