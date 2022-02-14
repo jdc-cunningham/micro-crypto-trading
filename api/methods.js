@@ -124,6 +124,17 @@ const updateLocalCryptoPrices = (currentCoinMarketCapCryptoPrices) => {
   return true;
 }
 
+const updatePortfolioValues = (newPortfolioValues) => {
+  fs.writeFile('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', JSON.stringify(newPortfolioValues), 'utf8', (err, data) => {
+    if (err) {
+      console.log(`failed to update portfolio values`);
+      return false;
+    } else {
+      return true;
+    }
+  });
+}
+
 const updateTxStatus = (coinSymbol, orderId, status) => {
   const localPortfolioValuesRaw = fs.readFileSync('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', 'utf8', (err, data) => {
     if (data) {
@@ -610,5 +621,6 @@ module.exports = {
   getPortfolioValues,
   countDecimals,
   truncatePriceUnit,
-  delayNextIteration
+  delayNextIteration,
+  updatePortfolioValues
 }

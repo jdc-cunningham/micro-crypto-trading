@@ -8,7 +8,7 @@ const {
 
 const {
   getCoinMarketCapCryptoPrices, updateLocalCryptoPrices, buy, sell, getOrderStatus, getPortfolioValues,
-  countDecimals, truncatePriceUnit, delayNextIteration
+  countDecimals, truncatePriceUnit, delayNextIteration, updatePortfolioValues
 } = require('/home/pi/micro-crypto-trading/api/methods.js');
 
 /**
@@ -37,45 +37,69 @@ const runScript = async () => {
       const coinPrice = coinCurrentPrices.data[localCoinMap[coinSymbol].id].quote.USD.price;
       const portfolio = portfolioValues[coinSymbol];
 
-      if (portfolio.amount && portfolio.current_order_type !== 'sell' && portfolio.last_tx_complete) {
+      let orderStatus;
+
+      if (portfolio.current_order_type === 'sell') {
+        orderStatus = await getOrderStatus(coinSymbol, portfolio.last_tx_id);
+
+        if (orderStatus === 'done') {
+          portfolio.current_order_type = '';
+          portfolio.balance = ((parseInt(portfolio.amount) * parseFloat(portfolio.prev_sell_price)) + parseFloat(portfolio.balance)).toFixed(2);
+          portfolio.amount = 0;
+          portfolio.last_tx_id = '';
+          portfolio.last_tx_complete = true;
+          portfolio.gain = parseFloat(portfolioBalance) > 55 ? parseFloat(portfolioBalance) - 55 : 0;
+          portfolio.loss = parseFloat(portfolioBalance) < 55 ? 55 - parseFloat(portfolioBalance) : 0;
+          updatePortfolioValues(portfolioValues);
+
+          // can buy
+          const smallestPriceUnit = portfolio.smallest_price_unit;
+          const priceUnitDecimals = countDecimals(smallestPriceUnit);
+          let buySubtractionMultiplier = 0;
+
+          if (coinSymbol === 'IOTX') {
+            buySubtractionMultiplier = 100;
+          } else if (priceUnitDecimals <= 4) {
+            buySubtractionMultiplier = 10;
+          } else if (priceUnitDecimals === 5) {
+            buySubtractionMultiplier = 25;
+          } else {
+            buySubtractionMultiplier = 100;
+          }
+
+          try {
+            await buy(
+              coinSymbol,
+              truncatePriceUnit(
+                parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
+                smallestPriceUnit
+              ),
+              portfolio.balance
+            ); // * 5 is hopefully definitely under current price
+
+            console.log(`${Date.now()} ${coinSymbol} buy order placed`);
+          } catch (err) {
+            console.error(err);
+          }
+        }
+      } else if (portfolio.current_order_type === 'buy' || (portfolio.current_order_type === "" && parseFloat(portfolio.balance) > 0)) {
+        orderStatus = await getOrderStatus(coinSymbol, portfolio.last_tx_id);
+
+        if (orderStatus === 'done') {
+          portfolio.current_order_type = '';
+          portfolio.last_tx_id = '';
+          portfolio.last_tx_complete = true;
+          updatePortfolioValues(portfolioValues);
+        }
+
+        // can sell
         const sellAtGainPrice = portfolio.prev_buy_price > coinPrice
           ? (portfolio.prev_buy_price * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit))
           : (coinPrice * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit));
 
-        // can sell
         try {
           await sell(coinSymbol, sellAtGainPrice, portfolio.amount);
           console.log(`${Date.now()} ${coinSymbol} sell order placed`);
-        } catch (err) {
-          console.error(err);
-        }
-      } else if (await getOrderStatus(coinSymbol, portfolio.last_tx_id) === 'done') {
-        // can buy
-        const smallestPriceUnit = portfolio.smallest_price_unit;
-        const priceUnitDecimals = countDecimals(smallestPriceUnit);
-        let buySubtractionMultiplier = 0;
-        portfolioValues.last_tx_id = ''; // reset
-        portfolioValues.last_tx_complete = true;
-
-        if (priceUnitDecimals <= 4) {
-          buySubtractionMultiplier = 10;
-        } else if (priceUnitDecimals === 5) {
-          buySubtractionMultiplier = 25;
-        } else {
-          buySubtractionMultiplier = 100;
-        }
-
-        try {
-          await buy(
-            coinSymbol,
-            truncatePriceUnit(
-              parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
-              smallestPriceUnit
-            ),
-            portfolio.balance
-          ); // * 5 is hopefully definitely under current price
-
-          console.log(`${Date.now()} ${coinSymbol} buy order placed`);
         } catch (err) {
           console.error(err);
         }

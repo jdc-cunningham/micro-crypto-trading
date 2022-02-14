@@ -27,7 +27,7 @@ const plotChartData = (chartData) => {
         <canvas id="${coinSymbol.toLowerCase()}-chart"></canvas>
       </div>`;
 
-      const coinPriceData = coinPrices[coinSymbol].prices.map(element => element.price);
+      const coinPriceData = coinPrices[coinSymbol].prices.reverse().map(element => element.price);
       const labels = coinPriceData.map((element, index) => index);
     
       const data = {
