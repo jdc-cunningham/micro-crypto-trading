@@ -1,13 +1,15 @@
-require('dotenv').config({ path: './.env' });
+require('dotenv').config({
+  path: __dirname + '/.env'
+});
 
 const {
   localCoinMap,
-} = require('./globals.js');
+} = require('/home/pi/micro-crypto-trading/api/globals.js');
 
 const {
   getCoinMarketCapCryptoPrices, updateLocalCryptoPrices, buy, sell, getOrderStatus, getPortfolioValues,
   countDecimals, truncatePriceUnit, delayNextIteration
-} = require('./methods');
+} = require('/home/pi/micro-crypto-trading/api/methods.js');
 
 /**
  * this script is what the 5-min CRON job runs
@@ -35,27 +37,26 @@ const runScript = async () => {
       const coinPrice = coinCurrentPrices.data[localCoinMap[coinSymbol].id].quote.USD.price;
       const portfolio = portfolioValues[coinSymbol];
 
-      if (portfolio.last_tx_id && !portfolio.last_tx_complete) {
-        // check if it's complete
-        const orderStatus = getOrderStatus(coinSymbol, portfolio.last_tx_id);
+      if (portfolio.amount && portfolio.current_order_type !== 'sell' && portfolio.last_tx_complete) {
+        const sellAtGainPrice = portfolio.prev_buy_price > coinPrice
+          ? (portfolio.prev_buy_price * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit))
+          : (coinPrice * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit));
 
-        if (orderStatus === 'done') {
-          portfolioValues[coinSymbol].last_tx_id = ''; // reset
-          portfolioValues[coinSymbol].last_tx_id = true;
-
-          const sellAtGainPrice = (portfolio.prev_buy_price * 1.02).toFixed(2);
-
-          if (coinPrice >= sellAtGainPrice) {
-            // can sell
-            await sell(coinSymbol, sellAtGainPrice, portfolio.amount);
-          }
+        // can sell
+        try {
+          await sell(coinSymbol, sellAtGainPrice, portfolio.amount);
+          console.log(`${Date.now()} ${coinSymbol} sell order placed`);
+        } catch (err) {
+          console.error(err);
         }
-      } else {
+      } else if (await getOrderStatus(coinSymbol, portfolio.last_tx_id) === 'done') {
         // can buy
         const smallestPriceUnit = portfolio.smallest_price_unit;
         const priceUnitDecimals = countDecimals(smallestPriceUnit);
         let buySubtractionMultiplier = 0;
-        
+        portfolioValues.last_tx_id = ''; // reset
+        portfolioValues.last_tx_complete = true;
+
         if (priceUnitDecimals <= 4) {
           buySubtractionMultiplier = 10;
         } else if (priceUnitDecimals === 5) {
@@ -64,17 +65,24 @@ const runScript = async () => {
           buySubtractionMultiplier = 100;
         }
 
-        await buy(
-          coinSymbol,
-          truncatePriceUnit(
-            parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
-            smallestPriceUnit
-          ),
-          portfolio.balance
-        ); // * 5 is hopefully definitely under current price
+        try {
+          await buy(
+            coinSymbol,
+            truncatePriceUnit(
+              parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
+              smallestPriceUnit
+            ),
+            portfolio.balance
+          ); // * 5 is hopefully definitely under current price
+
+          console.log(`${Date.now()} ${coinSymbol} buy order placed`);
+        } catch (err) {
+          console.error(err);
+        }
+      } else {
+        console.log(`${coinSymbol} ${portfolio.current_order_type} order in progress`);
       }
 
-      console.log(Date.now());
       await delayNextIteration();
     };
   }

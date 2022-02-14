@@ -1,4 +1,6 @@
-require('dotenv').config({ path: './.env' });
+require('dotenv').config({
+  path: __dirname + '/.env'
+});
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -7,7 +9,7 @@ const port = 5011;
 
 const {
   getAllChartData, getErrors
-} = require('./methods');
+} = require('/home/pi/micro-crypto-trading/api/methods.js');
 
 // took this base server code from previous apps I've made
 // this is running in my own home network eg. 192 ip address so security is not a huge concern

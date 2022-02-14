@@ -1,7 +1,7 @@
 const fs = require('fs');
 const crypto = require('crypto');
 const axios = require('axios');
-const { cbpProductIdMap, portfolioCredentialsMap, tradingFee } = require('./globals.js');
+const { cbpProductIdMap, portfolioCredentialsMap, tradingFee } = require('/home/pi/micro-crypto-trading/api/globals.js');
 
 const getCoinMarketCapCryptoPrices = (coinIdCommaStr) => {
   return new Promise((resolve, reject) => {
@@ -51,7 +51,7 @@ const getCoinMarketCapCryptoMap = () => {
 
 // these errors are read by the web app
 const writeError = errMsg => {
-  const pastRawErrors = fs.readFileSync('./data/errors.json', 'utf8', (err, data) => {
+  const pastRawErrors = fs.readFileSync('/home/pi/micro-crypto-trading/api/data/errors.json', 'utf8', (err, data) => {
     if (err) {
       return false;
     } else {
@@ -67,7 +67,7 @@ const writeError = errMsg => {
       ...pastErrors
     };
 
-    fs.writeFile('./data/errors.json', JSON.stringify(updatedErrors), 'utf8', (err, data) => {
+    fs.writeFile('/home/pi/micro-crypto-trading/api/data/errors.json', JSON.stringify(updatedErrors), 'utf8', (err, data) => {
       if (err) {
         // fail to write to error lol, use telepathy at this point
         console.log(`Failed to write error to file, ${JSON.stringify(err).substring(0, 24)}`); // this will be visible on server cli by pm2 logs
@@ -83,7 +83,7 @@ const writeError = errMsg => {
 // acces values eg. price, percent_change_1h, etc...
 const updateLocalCryptoPrices = (currentCoinMarketCapCryptoPrices) => {
   // https://www.geeksforgeeks.org/node-js-fs-readfile-method/
-  const localRawPrices = fs.readFileSync('./data/price_tracking.json', 'utf8', (err, data) => {
+  const localRawPrices = fs.readFileSync('/home/pi/micro-crypto-trading/api/data/price_tracking.json', 'utf8', (err, data) => {
     if (data) {
       return data;
     } else {
@@ -113,7 +113,7 @@ const updateLocalCryptoPrices = (currentCoinMarketCapCryptoPrices) => {
       })
     });
 
-    fs.writeFile('./data/price_tracking.json', JSON.stringify(localPrices), 'utf8', (err, data) => {
+    fs.writeFile('/home/pi/micro-crypto-trading/api/data/price_tracking.json', JSON.stringify(localPrices), 'utf8', (err, data) => {
       if (err) {
         writeError(`Failed to write new prices, ${JSON.stringify(err).substring(0, 24)}`);
         return false;
@@ -125,7 +125,7 @@ const updateLocalCryptoPrices = (currentCoinMarketCapCryptoPrices) => {
 }
 
 const updateTxStatus = (coinSymbol, orderId, status) => {
-  const localPortfolioValuesRaw = fs.readFileSync('./data/portfolio_values.json', 'utf8', (err, data) => {
+  const localPortfolioValuesRaw = fs.readFileSync('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', 'utf8', (err, data) => {
     if (data) {
       return data;
     } else {
@@ -139,7 +139,7 @@ const updateTxStatus = (coinSymbol, orderId, status) => {
     const portfolioValues = JSON.parse(localPortfolioValuesRaw);
     portfolioValues[coinSymbol].last_tx_complete = status === 'done' ? true : false; // should always done at this stage
 
-    fs.writeFile('./data/portfolio_values.json', JSON.stringify(portfolioValues), 'utf8', (err, data) => {
+    fs.writeFile('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', JSON.stringify(portfolioValues), 'utf8', (err, data) => {
       if (err) {
         console.log(`failed to write to update tx status for ${coinSymbol}`);
       }
@@ -334,7 +334,7 @@ const getPortfolios = () => {
 }
 
 const getPortfolioValues = () => {
-  const localPortfolioValuesRaw = fs.readFileSync('./data/portfolio_values.json', 'utf8', (err, data) => {
+  const localPortfolioValuesRaw = fs.readFileSync('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', 'utf8', (err, data) => {
     if (data) {
       return data;
     } else {
@@ -362,7 +362,7 @@ const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
   // txAmount can flex between units of a coin and USD depending on action
   const { txAmount, txSize, txPrice, txLoss, txGain, txId } = txInfo;
 
-  const localPortfolioValuesRaw = fs.readFileSync('./data/portfolio_values.json', 'utf8', (err, data) => {
+  const localPortfolioValuesRaw = fs.readFileSync('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', 'utf8', (err, data) => {
     if (data) {
       return data;
     } else {
@@ -382,10 +382,12 @@ const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
       updatedCoinPortfolioValues['balance'] = (updatedCoinPortfolioValues['balance'] - parseFloat(txAmount)).toFixed(2);
       updatedCoinPortfolioValues['amount'] = txSize;
       updatedCoinPortfolioValues['prev_buy_price'] = txPrice;
+      updatedCoinPortfolioValues['current_order_type'] = 'buy';
     } else {
-      updatedCoinPortfolioValues['balance'] = (parseFloat(updatedCoinPortfolioValues['balance']) + parseFloat(txAmount)).toFixed(2);
-      updatedCoinPortfolioValues['amount'] = 0; // should have sold all
+      // updatedCoinPortfolioValues['balance'] = (parseFloat(updatedCoinPortfolioValues['balance']) + parseFloat(txAmount)).toFixed(2);
+      // updatedCoinPortfolioValues['amount'] = 0; // should have sold all
       updatedCoinPortfolioValues['prev_sell_price'] = txPrice;
+      updatedCoinPortfolioValues['current_order_type'] = 'sell';
 
       if (txLoss) {
         updatedCoinPortfolioValues['loss'] = parseFloat(updatedCoinPortfolioValues['loss']) + parseFloat(txLoss);
@@ -399,7 +401,7 @@ const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
       [coinSymbol]: updatedCoinPortfolioValues
     };
 
-    fs.writeFile('./data/portfolio_values.json', JSON.stringify(updatedLocalPortfolioValues), 'utf8', (err, data) => {
+    fs.writeFile('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', JSON.stringify(updatedLocalPortfolioValues), 'utf8', (err, data) => {
       if (err) {
         console.log(`failed to write to update local portfolio values`);
       }
@@ -521,7 +523,7 @@ const truncatePriceUnit = (price, smallestPriceUnit) => {
 
 const getAllChartData = (request, response) => {
   // this processing will get worse over time, every day will add 288 entries
-  const localRawPrices = fs.readFileSync('./data/price_tracking.json', 'utf8', (err, data) => {
+  const localRawPrices = fs.readFileSync('/home/pi/micro-crypto-trading/api/data/price_tracking.json', 'utf8', (err, data) => {
     if (data) {
       return data;
     } else {
@@ -529,7 +531,7 @@ const getAllChartData = (request, response) => {
     }
   });
 
-  const portfolioValuesRaw = fs.readFileSync('./data/portfolio_values.json', 'utf8', (err, data) => {
+  const portfolioValuesRaw = fs.readFileSync('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', 'utf8', (err, data) => {
     if (data) {
       return data;
     } else {
@@ -549,7 +551,7 @@ const getAllChartData = (request, response) => {
     // tz https://stackoverflow.com/a/28149561/2710227
     const tzOffset = (new Date()).getTimezoneOffset() * 60000;
     const todaysDate = new Date(Date.now() - tzOffset).toISOString().split('T')[0];
-    const todayStartingTimestamp = new Date(todaysDate).getTime();
+    const todayStartingTimestamp = new Date(todaysDate).getTime() + (6 * 60 * 60 * 1000);
     const todayEndingTimestamp = todayStartingTimestamp + (24 * 60 * 60 * 1000);
 
     // I almost did this a poor way but I thought for 2 seconds and use the timestamp route vs. date comparison
@@ -557,9 +559,9 @@ const getAllChartData = (request, response) => {
     response.status('200').json({
       data: Object.keys(localPrices).map(coinSymbol => ({
         [coinSymbol]: {
-          value: !portfolioData[coinSymbol]?.amount
+          value: (portfolioData[coinSymbol].last_tx_complete && !portfolioData[coinSymbol].amount)
             ? `${parseFloat(portfolioData[coinSymbol].balance).toFixed(2)}`
-            : `${parseFloat((portfolioData[coinSymbol].amount) * localPrices[coinSymbol][0].price).toFixed(2)}`,
+            : `${parseInt((portfolioData[coinSymbol].amount) * parseFloat(localPrices[coinSymbol][0].price)).toFixed(2)}`,
           prices: localPrices[coinSymbol].filter(price =>
             price.timestamp >= todayStartingTimestamp && price.timestamp <= todayEndingTimestamp
           )
@@ -570,7 +572,7 @@ const getAllChartData = (request, response) => {
 }
 
 const getErrors = (request, response) => {
-  const errorsRaw = fs.readFileSync('./data/errors.json', 'utf8', (err, data) => {
+  const errorsRaw = fs.readFileSync('/home/pi/micro-crypto-trading/api/data/errors.json', 'utf8', (err, data) => {
     if (data) {
       return data;
     } else {
