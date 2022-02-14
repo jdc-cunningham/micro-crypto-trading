@@ -3,6 +3,11 @@ Once I "turn the system on" barring any weird CRON-job file issues, I can't modi
 Have to let it run for a month and see if it survives, does it continue to trade on its own.
 
 ### Fails
+02/14/2022
+Cannot get IOTX to buy missed gain
+
+Updating logic to trade since it didn't buy more after selling
+
 02/13/2022
 Stopped trading after recent changes, after sell went through
 
