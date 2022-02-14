@@ -522,13 +522,13 @@ const truncatePriceUnit = (price, smallestPriceUnit) => {
   return parseFloat(priceParts[0] + '.' + priceParts[1].substring(0, countDecimals(smallestPriceUnit)));
 }
 
-const getPortfolioValue = (lastTxComplete, coinAmount, coinCurrentPrice, portfolioAmount, portfolioBalance) => {
-  if (lastTxComplete && !coinAmount) {
+const getPortfolioValue = (lastTxComplete, portfolioAmount, coinCurrentPrice, portfolioBalance) => {
+  if (lastTxComplete && !portfolioAmount) {
     return `${parseFloat(portfolioBalance).toFixed(2)}`;
   } else if (portfolioAmount) {
-    return `${parseInt((coinAmount) * parseFloat(coinCurrentPrice)).toFixed(2)}`;
+    return `${(parseInt(portfolioAmount) * parseFloat(coinCurrentPrice)).toFixed(2)}`;
   } else {
-    return portfolioAmount;
+    return portfolioBalance;
   }
 }
 
@@ -572,9 +572,9 @@ const getAllChartData = (request, response) => {
         [coinSymbol]: {
           value: getPortfolioValue(
             portfolioData[coinSymbol].last_tx_complete,
-            parseFloat(portfolioData[coinSymbol].amount).toFixed(2),
-            parseFloat(localPrices[coinSymbol][0].price).toFixed(2),
-            parseFloat(portfolioData[coinSymbol].balance).toFixed(2), 
+            portfolioData[coinSymbol].amount,
+            localPrices[coinSymbol][0].price,
+            portfolioData[coinSymbol].balance, 
           ),
           prices: localPrices[coinSymbol].filter(price =>
             price.timestamp >= todayStartingTimestamp && price.timestamp <= todayEndingTimestamp

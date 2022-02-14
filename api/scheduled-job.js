@@ -67,8 +67,6 @@ const runScript = async () => {
             buySubtractionMultiplier = 100;
           }
 
-          console.log(`buy ${coinSymbol} ${parseFloat(coinPrice)} ${smallestPriceUnit} ${buySubtractionMultiplier}`);
-
           try {
             await buy(
               coinSymbol,
