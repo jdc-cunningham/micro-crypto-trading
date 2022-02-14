@@ -71,7 +71,7 @@ const runScript = async () => {
             await buy(
               coinSymbol,
               isIotx
-                ? parseFloat(coinPrice).toFixed(5) - 0.001
+                ? parseFloat(coinPrice).toFixed(5) - 0.0001
                 : truncatePriceUnit(
                   parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
                   smallestPriceUnit
