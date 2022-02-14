@@ -35,7 +35,7 @@ const runScript = async () => {
       const coinPrice = coinCurrentPrices.data[localCoinMap[coinSymbol].id].quote.USD.price;
       const portfolio = portfolioValues[coinSymbol];
 
-      if (portfolio.amount && portfolio.current_order_type !== 'sell' && portfolio.last_tx_complete) {
+      if (portfolio.amount && portfolio.current_order_type === 'buy' && portfolio.last_tx_complete) {
         const sellAtGainPrice = portfolio.prev_buy_price > coinPrice
           ? (portfolio.prev_buy_price * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit))
           : (coinPrice * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit));
@@ -47,7 +47,7 @@ const runScript = async () => {
         } catch (err) {
           console.error(err);
         }
-      } else if (await getOrderStatus(coinSymbol, portfolio.last_tx_id) === 'done') {
+      } else if (portfolio.current_order_type === "" || await getOrderStatus(coinSymbol, portfolio.last_tx_id) === 'done') {
         // can buy
         const smallestPriceUnit = portfolio.smallest_price_unit;
         const priceUnitDecimals = countDecimals(smallestPriceUnit);
