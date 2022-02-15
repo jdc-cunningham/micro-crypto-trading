@@ -164,7 +164,7 @@ const updateTxStatus = (coinSymbol, orderId, status) => {
  * @param {String} orderId 
  * @returns {Object} status eg. open/filled or error
  */
-const getOrderStatus = (coinSymbol, orderId) => {
+const getOrder = (coinSymbol, orderId) => {
   return new Promise((resolve, reject) => {
     const coinPortfolio = portfolioCredentialsMap[coinSymbol];
     const secret = coinPortfolio.secret;
@@ -190,6 +190,8 @@ const getOrderStatus = (coinSymbol, orderId) => {
         if (status === 'done') {
           updateTxStatus(coinSymbol, orderId, 'done');
         }
+
+        // console.log(response.data);
 
         resolve({
           status: response.data.status
@@ -620,7 +622,7 @@ module.exports = {
   sell,
   getAllChartData,
   getErrors,
-  getOrderStatus,
+  getOrder,
   getPortfolioValues,
   countDecimals,
   truncatePriceUnit,

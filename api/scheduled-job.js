@@ -7,7 +7,7 @@ const {
 } = require('/home/pi/micro-crypto-trading/api/globals.js');
 
 const {
-  getCoinMarketCapCryptoPrices, updateLocalCryptoPrices, buy, sell, getOrderStatus, getPortfolioValues,
+  getCoinMarketCapCryptoPrices, updateLocalCryptoPrices, buy, sell, getOrder, getPortfolioValues,
   countDecimals, truncatePriceUnit, delayNextIteration, updatePortfolioValues
 } = require('/home/pi/micro-crypto-trading/api/methods.js');
 
@@ -35,19 +35,25 @@ const runScript = async () => {
     for (const coinSymbol of Object.keys(portfolioValues)) {
       const coinPrice = coinCurrentPrices.data[localCoinMap[coinSymbol].id].quote.USD.price;
       const portfolio = portfolioValues[coinSymbol];
+      let order = {};
 
-      let orderStatus;
-
-      if (portfolio.current_order_type === 'sell' || (portfolio.current_order_type === "" && parseInt(portfolio.amount) === 0)) {
-        orderStatus = portfolio.current_order_type === ""
+      if (
+        portfolio.current_order_type === 'sell'
+        || (portfolio.current_order_type === "" && parseInt(portfolio.balance) > 0)
+      ) {
+        order = portfolio.current_order_type === ""
           ? {status: 'done'}
-          : await getOrderStatus(coinSymbol, portfolio.last_tx_id);
+          : await getOrder(coinSymbol, portfolio.last_tx_id);
 
-        console.log(`${coinSymbol} sell order status ${JSON.stringify(orderStatus)}`);
+        console.log(`${coinSymbol} sell order status ${JSON.stringify(order.status)}`);
 
-        if (orderStatus.status === 'done') {
-          portfolio.current_order_type = '';
-          portfolio.balance = ((parseInt(portfolio.amount) * parseFloat(portfolio.prev_sell_price)) + parseFloat(portfolio.balance)).toFixed(2);
+        if (order.status === 'done') {
+          portfolio.current_order_type = 'buy';
+
+          if (order?.size) {
+            portfolio.balance = ((parseInt(order.size) * parseFloat(order.price)) + parseFloat(portfolio.balance)).toFixed(2);
+          }
+
           portfolio.amount = 0;
           portfolio.last_tx_id = '';
           portfolio.last_tx_complete = true;
@@ -69,15 +75,17 @@ const runScript = async () => {
             buySubtractionMultiplier = 100;
           }
 
+          const amountToBuy = isIotx
+            ? parseFloat(coinPrice).toFixed(5) - 0.001
+            : truncatePriceUnit(
+              parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
+              smallestPriceUnit
+            );
+
           try {
             await buy(
               coinSymbol,
-              isIotx
-                ? parseFloat(coinPrice).toFixed(5) - 0.001
-                : truncatePriceUnit(
-                  parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
-                  smallestPriceUnit
-                ),
+              amountToBuy,
               portfolio.balance
             ); // * 5 is hopefully definitely under current price
 
@@ -86,17 +94,25 @@ const runScript = async () => {
             console.error(err);
           }
         }
-      } else if (portfolio.current_order_type === 'buy' || (portfolio.current_order_type === "" && parseInt(portfolio.amount) !== 0)) {
-        orderStatus = portfolio.current_order_type === ""
+      } else if (
+        portfolio.current_order_type === 'buy'
+        || (portfolio.current_order_type === "" && parseInt(portfolio.amount) > 0)
+      ) {
+        order = portfolio.current_order_type === ""
           ? {status: 'done'}
-          : await getOrderStatus(coinSymbol, portfolio.last_tx_id);
+          : await getOrder(coinSymbol, portfolio.last_tx_id);
 
-        console.log(`${coinSymbol} buy order status ${JSON.stringify(orderStatus)}`);
+        console.log(`${coinSymbol} buy order status ${JSON.stringify(order.status)}`);
 
-        if (orderStatus.status === 'done') {
+        if (order.status === 'done') {
           portfolio.current_order_type = '';
           portfolio.last_tx_id = '';
           portfolio.last_tx_complete = true;
+
+          if (order?.size) {
+            portfolio.balance = ((parseInt(order.size) * parseFloat(order.price)) + parseFloat(portfolio.balance)).toFixed(2);
+            portfolio.amount = parseInt(order.size);
+          }
           updatePortfolioValues(portfolioValues);
 
           // can sell
