@@ -28,18 +28,18 @@
     "current_order_type": "sell"
   },
   "BLZ": {
-    "balance": "0.23",
-    "amount": 264,
-    "gain": 0.88,
+    "balance": "56.96",
+    "amount": 0,
+    "gain": 1.9600000000000009,
     "loss": 0,
     "prev_buy_price": "0.2085",
     "prev_sell_price": "0.2149",
-    "last_tx_id": "a5118cdd-7cbb-482f-963a-585d13684a72",
-    "last_tx_complete": false,
+    "last_tx_id": "",
+    "last_tx_complete": true,
     "max_weekly_loss": 0.27,
     "smallest_amount_unit": 1,
     "smallest_price_unit": 0.0001,
-    "current_order_type": "sell"
+    "current_order_type": ""
   },
   "LOOM": {
     "balance": "0.28",
@@ -49,7 +49,7 @@
     "prev_buy_price": "0.0840",
     "prev_sell_price": "0.0865",
     "last_tx_id": "025271f9-d45e-448b-acec-3813b5e19157",
-    "last_tx_complete": false,
+    "last_tx_complete": true,
     "max_weekly_loss": 0.29,
     "smallest_amount_unit": 0.7,
     "smallest_price_unit": 0.0001,
@@ -74,14 +74,14 @@
     "amount": 0,
     "gain": 0,
     "loss": 0,
-    "prev_buy_price": 0,
+    "prev_buy_price": "0.09132",
     "prev_sell_price": 0,
-    "last_tx_id": "",
-    "last_tx_complete": true,
+    "last_tx_id": "f6fa3b3e-c014-4152-895d-79547140dc9c",
+    "last_tx_complete": false,
     "max_weekly_loss": 0.33,
     "smallest_amount_unit": 4,
     "smallest_price_unit": 0.00001,
-    "current_order_type": ""
+    "current_order_type": "buy"
   },
   "ANKR": {
     "balance": "0.29",

@@ -39,11 +39,13 @@ const runScript = async () => {
       let orderStatus;
 
       if (portfolio.current_order_type === 'sell' || (portfolio.current_order_type === "" && parseInt(portfolio.amount) === 0)) {
-        orderStatus = portfolio.current_order_type === "" ? 'done' : await getOrderStatus(coinSymbol, portfolio.last_tx_id);
+        orderStatus = portfolio.current_order_type === ""
+          ? {status: 'done'}
+          : await getOrderStatus(coinSymbol, portfolio.last_tx_id);
 
         console.log(`${coinSymbol} sell order status ${JSON.stringify(orderStatus)}`);
 
-        if (orderStatus === 'done') {
+        if (orderStatus.status === 'done') {
           portfolio.current_order_type = '';
           portfolio.balance = ((parseInt(portfolio.amount) * parseFloat(portfolio.prev_sell_price)) + parseFloat(portfolio.balance)).toFixed(2);
           portfolio.amount = 0;
@@ -71,7 +73,7 @@ const runScript = async () => {
             await buy(
               coinSymbol,
               isIotx
-                ? parseFloat(coinPrice).toFixed(5) - 0.0001
+                ? parseFloat(coinPrice).toFixed(5) - 0.001
                 : truncatePriceUnit(
                   parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
                   smallestPriceUnit
@@ -85,11 +87,13 @@ const runScript = async () => {
           }
         }
       } else if (portfolio.current_order_type === 'buy' || (portfolio.current_order_type === "" && parseInt(portfolio.amount) !== 0)) {
-        orderStatus = portfolio.current_order_type === "" ? 'done' : await getOrderStatus(coinSymbol, portfolio.last_tx_id);
+        orderStatus = portfolio.current_order_type === ""
+          ? {status: 'done'}
+          : await getOrderStatus(coinSymbol, portfolio.last_tx_id);
 
         console.log(`${coinSymbol} buy order status ${JSON.stringify(orderStatus)}`);
 
-        if (orderStatus === 'done') {
+        if (orderStatus.status === 'done') {
           portfolio.current_order_type = '';
           portfolio.last_tx_id = '';
           portfolio.last_tx_complete = true;
