@@ -39,7 +39,7 @@ const runScript = async () => {
 
       if (
         portfolio.current_order_type === 'sell'
-        || (portfolio.current_order_type === "" && parseInt(portfolio.balance) > 0)
+        || (portfolio.current_order_type === "" && parseInt(portfolio.balance) > 10)
       ) {
         order = portfolio.current_order_type === ""
           ? {status: 'done'}
@@ -48,14 +48,14 @@ const runScript = async () => {
         console.log(`${coinSymbol} sell order status ${JSON.stringify(order.status)}`);
 
         if (order.status === 'done') {
-          portfolio.current_order_type = 'buy';
+          portfolio.current_order_type = "buy";
 
           if (order?.size) {
             portfolio.balance = ((parseInt(order.size) * parseFloat(order.price)) + parseFloat(portfolio.balance)).toFixed(2);
           }
 
           portfolio.amount = 0;
-          portfolio.last_tx_id = '';
+          portfolio.last_tx_id = "";
           portfolio.last_tx_complete = true;
           portfolio.gain = parseFloat(portfolio.balance) > 55 ? parseFloat(portfolio.balance) - 55 : 0;
           portfolio.loss = parseFloat(portfolio.balance) < 55 ? 55 - parseFloat(portfolio.balance) : 0;
@@ -65,7 +65,6 @@ const runScript = async () => {
           const smallestPriceUnit = portfolio.smallest_price_unit;
           const priceUnitDecimals = countDecimals(smallestPriceUnit);
           let buySubtractionMultiplier = 0;
-          const isIotx = coinSymbol === 'IOTX';
 
           if (priceUnitDecimals <= 4) {
             buySubtractionMultiplier = 10;
@@ -75,9 +74,7 @@ const runScript = async () => {
             buySubtractionMultiplier = 100;
           }
 
-          const amountToBuy = isIotx
-            ? parseFloat(coinPrice).toFixed(5) - 0.001
-            : truncatePriceUnit(
+          const amountToBuy = truncatePriceUnit(
               parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
               smallestPriceUnit
             );
@@ -96,7 +93,7 @@ const runScript = async () => {
         }
       } else if (
         portfolio.current_order_type === 'buy'
-        || (portfolio.current_order_type === "" && parseInt(portfolio.amount) > 0)
+        || (portfolio.current_order_type === "" && parseInt(portfolio.amount) > 10)
       ) {
         order = portfolio.current_order_type === ""
           ? {status: 'done'}
@@ -105,14 +102,15 @@ const runScript = async () => {
         console.log(`${coinSymbol} buy order status ${JSON.stringify(order.status)}`);
 
         if (order.status === 'done') {
-          portfolio.current_order_type = '';
-          portfolio.last_tx_id = '';
+          portfolio.current_order_type = "";
+          portfolio.last_tx_id = "";
           portfolio.last_tx_complete = true;
 
           if (order?.size) {
-            portfolio.balance = ((parseInt(order.size) * parseFloat(order.price)) + parseFloat(portfolio.balance)).toFixed(2);
+            portfolio.balance = (parseFloat(portfolio.balance) - (parseInt(order.size) * parseFloat(order.price))).toFixed(2);
             portfolio.amount = parseInt(order.size);
           }
+
           updatePortfolioValues(portfolioValues);
 
           // can sell

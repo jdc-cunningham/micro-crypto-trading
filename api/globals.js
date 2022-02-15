@@ -25,10 +25,10 @@ const localCoinMap = {
     name: 'XYO',
     slug: 'xyo',
   },
-  'IOTX': {
-    id: 2777,
-    name: 'IoTeX',
-    slug: 'iotex',
+  'TRU': {
+    id: 7725,
+    name: 'TrueFi',
+    slug: 'TRU',
   },
   'ANKR': {
     id: 3783,
@@ -53,7 +53,7 @@ const cbpProductIdMap = {
   'BLZ': 'BLZ-USD',
   'LOOM': 'LOOM-USD',
   'XYO': 'XYO-USD',
-  'IOTX': 'IOTX-USD',
+  'TRU': 'TRU-USD',
   'ANKR': 'ANKR-USD',
   'AMP': 'AMP-USD',
   'SPELL': 'SPELL-USD' 
@@ -67,7 +67,7 @@ const coinSymbolPortfolioMap = {
   'BLZ': 5,
   'LOOM': 6,
   'XYO': 7,
-  'IOTX': 8,
+  'TRU': 8,
   'ANKR': 9,
   'AMP': 10,
   'SPELL': 11 
@@ -104,7 +104,7 @@ const portfolioCredentialsMap = {
     passphrase: process.env.CBP_PORTFOLIO_6_PASSPHRASE,
     secret: process.env.CBP_PORTFOLIO_6_SECRET
   },
-  'IOTX': {
+  'TRU': {
     id: process.env.CBP_PORTFOLIO_7_ID,
     key: process.env.CBP_PORTFOLIO_7_KEY,
     passphrase: process.env.CBP_PORTFOLIO_7_PASSPHRASE,

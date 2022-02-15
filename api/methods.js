@@ -35,7 +35,7 @@ const getCoinMarketCapCryptoMap = () => {
         if (response?.data?.data) {
           const coinMap = response.data.data;
           const wantedCoins = [
-            'SPELL', 'XYO', 'AMP', 'MDT', 'LOOM', 'ANKR', 'DNT', 'IOTX', 'BLZ'
+            'SPELL', 'XYO', 'AMP', 'MDT', 'LOOM', 'ANKR', 'DNT', 'TRU', 'BLZ'
           ];
           const matchedCoins = coinMap.filter(coin => wantedCoins.indexOf(coin.symbol) !== -1);
           resolve({data: matchedCoins});
@@ -67,7 +67,7 @@ const writeError = errMsg => {
       ...pastErrors
     };
 
-    fs.writeFile('/home/pi/micro-crypto-trading/api/data/errors.json', JSON.stringify(updatedErrors), 'utf8', (err, data) => {
+    fs.writeFileSync('/home/pi/micro-crypto-trading/api/data/errors.json', JSON.stringify(updatedErrors), 'utf8', (err, data) => {
       if (err) {
         // fail to write to error lol, use telepathy at this point
         console.log(`Failed to write error to file, ${JSON.stringify(err).substring(0, 24)}`); // this will be visible on server cli by pm2 logs
@@ -113,7 +113,8 @@ const updateLocalCryptoPrices = (currentCoinMarketCapCryptoPrices) => {
       })
     });
 
-    fs.writeFile('/home/pi/micro-crypto-trading/api/data/price_tracking.json', JSON.stringify(localPrices), 'utf8', (err, data) => {
+    fs.writeFileSync('/home/pi/micro-crypto-trading/api/data/price_tracking.json', JSON.stringify(localPrices), 'utf8', (err, data) => {
+      console.log('update local');
       if (err) {
         writeError(`Failed to write new prices, ${JSON.stringify(err).substring(0, 24)}`);
         return false;
@@ -125,7 +126,8 @@ const updateLocalCryptoPrices = (currentCoinMarketCapCryptoPrices) => {
 }
 
 const updatePortfolioValues = (newPortfolioValues) => {
-  fs.writeFile('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', JSON.stringify(newPortfolioValues), 'utf8', (err, data) => {
+  console.log('update port');
+  fs.writeFileSync('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', JSON.stringify(newPortfolioValues), 'utf8', (err, data) => {
     if (err) {
       console.log(`failed to update portfolio values`);
       return false;
@@ -150,7 +152,7 @@ const updateTxStatus = (coinSymbol, orderId, status) => {
     const portfolioValues = JSON.parse(localPortfolioValuesRaw);
     portfolioValues[coinSymbol].last_tx_complete = status === 'done' ? true : false; // should always done at this stage
 
-    fs.writeFile('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', JSON.stringify(portfolioValues), 'utf8', (err, data) => {
+    fs.writeFileSync('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', JSON.stringify(portfolioValues), 'utf8', (err, data) => {
       if (err) {
         console.log(`failed to write to update tx status for ${coinSymbol}`);
       }
@@ -404,7 +406,8 @@ const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
       [coinSymbol]: updatedCoinPortfolioValues
     };
 
-    fs.writeFile('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', JSON.stringify(updatedLocalPortfolioValues), 'utf8', (err, data) => {
+    console.log('update local port');
+    fs.writeFileSync('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', JSON.stringify(updatedLocalPortfolioValues), 'utf8', (err, data) => {
       if (err) {
         console.log(`failed to write to update local portfolio values`);
       }
