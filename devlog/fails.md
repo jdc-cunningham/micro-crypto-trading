@@ -3,6 +3,9 @@ Once I "turn the system on" barring any weird CRON-job file issues, I can't modi
 Have to let it run for a month and see if it survives, does it continue to trade on its own.
 
 ### Fails
+02/15/2022
+JSON becomes malformed due to some random thing appending to the entire object, can't figure out where it is
+
 02/14/2022
 LOOM has not bought for 45 mins since my code sucks because not parsing orderStatus right
 

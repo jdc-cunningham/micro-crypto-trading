@@ -35,7 +35,7 @@ const getCoinMarketCapCryptoMap = () => {
         if (response?.data?.data) {
           const coinMap = response.data.data;
           const wantedCoins = [
-            'SPELL', 'XYO', 'AMP', 'MDT', 'LOOM', 'ANKR', 'DNT', 'IOTX', 'BLZ'
+            'SPELL', 'XYO', 'AMP', 'MDT', 'LOOM', 'ANKR', 'DNT', 'TRU', 'BLZ'
           ];
           const matchedCoins = coinMap.filter(coin => wantedCoins.indexOf(coin.symbol) !== -1);
           resolve({data: matchedCoins});
