@@ -4,6 +4,8 @@ Have to let it run for a month and see if it survives, does it continue to trade
 
 ### Fails
 02/14/2022
+LOOM has not bought for 45 mins since my code sucks because not parsing orderStatus right
+
 Put logic in wrong spot
 
 Cannot get IOTX to buy missed gain
