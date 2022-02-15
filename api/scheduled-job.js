@@ -51,14 +51,14 @@ const runScript = async () => {
           portfolio.current_order_type = "buy";
 
           if (order?.size) {
+            portfolio.amount = 0;
             portfolio.balance = ((parseInt(order.size) * parseFloat(order.price)) + parseFloat(portfolio.balance)).toFixed(2);
+            portfolio.gain = parseFloat(portfolio.balance) > 55 ? parseFloat(portfolio.balance) - 55 : 0;
+            portfolio.loss = parseFloat(portfolio.balance) < 55 ? 55 - parseFloat(portfolio.balance) : 0;
           }
 
-          portfolio.amount = 0;
           portfolio.last_tx_id = "";
           portfolio.last_tx_complete = true;
-          portfolio.gain = parseFloat(portfolio.balance) > 55 ? parseFloat(portfolio.balance) - 55 : 0;
-          portfolio.loss = parseFloat(portfolio.balance) < 55 ? 55 - parseFloat(portfolio.balance) : 0;
           updatePortfolioValues(portfolioValues);
 
           // can buy
