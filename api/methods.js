@@ -372,10 +372,13 @@ const getPortfolioValues = () => {
  * @param {String} coinSymbol eg. DNT
  * @param {String} action buy/sell 
  * @param {Object} txInfo has info like amount and size
+ * @param {Object} prevOrder includes info such as price/size
  */
-const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
+const updateLocalPortfolioValues = (coinSymbol, action, txInfo, prevOrder) => {
   // txAmount can flex between units of a coin and USD depending on action
   const { txAmount, txSize, txPrice, txLoss, txGain, txId } = txInfo;
+
+  console.log(prevOrder);
 
   const localPortfolioValuesRaw = fs.readFileSync('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', 'utf8', (err, data) => {
     if (data) {
@@ -394,9 +397,13 @@ const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
     updatedCoinPortfolioValues['last_tx_complete'] = false;
 
     if (action === 'buy') {
+      updatedCoinPortfolioValues['balance'] = (parseFloat(updatedCoinPortfolioValues.balance) + (parseInt(prevOrder.size) * parseFloat(prevOrder.price))).toFixed(2);
+      updatedCoinPortfolioValues['amount'] = 0;
       updatedCoinPortfolioValues['prev_buy_price'] = txPrice.toString();
       updatedCoinPortfolioValues['current_order_type'] = 'buy';
     } else {
+      updatedCoinPortfolioValues['balance'] = (parseFloat(updatedCoinPortfolioValues.balance) - (parseInt(prevOrder.size) * parseFloat(prevOrder.price))).toFixed(2);
+      updatedCoinPortfolioValues['amount'] = prevOrder.size;
       updatedCoinPortfolioValues['prev_sell_price'] = txPrice.toString();
       updatedCoinPortfolioValues['current_order_type'] = 'sell';
     }
@@ -421,9 +428,10 @@ const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
  * @param {String} coinSymbol eg. DNT
  * @param {Float} coinPrice 4 decimal place precision
  * @param {Float} coinPortfolioBalance USD
+ * @param {Object} prevOrder includes info such as price/size
  *
  */
-const buy = async (coinSymbol, coinPrice, coinPortfolioBalance) => {
+const buy = async (coinSymbol, coinPrice, coinPortfolioBalance, prevOrder) => {
   const coinPortfolio = portfolioCredentialsMap[coinSymbol];
   const balanceAvailable = coinPortfolioBalance - (coinPortfolioBalance * tradingFee); // limits amount used by 2x actual trading fee
   const size = (balanceAvailable / coinPrice).toFixed(0);
@@ -449,7 +457,7 @@ const buy = async (coinSymbol, coinPrice, coinPortfolioBalance) => {
       txAmount: (rawTxAmount + (rawTxAmount * 0.005)).toFixed(2) // adds 0.5% actual trading fee
     };
 
-    updateLocalPortfolioValues(coinSymbol, 'buy', txInfo);
+    updateLocalPortfolioValues(coinSymbol, 'buy', txInfo, prevOrder);
   }
 };
 
@@ -459,9 +467,10 @@ const buy = async (coinSymbol, coinPrice, coinPortfolioBalance) => {
  * @param {String} coinSymbol eg. DNT
  * @param {Float} coinSalePrice determined salePrice from algo
  * @param {Float} coinSaleSize size based on amount in portfolio
+ * @param {Object} prevOrder includes info such as price/size
  *
  */
-const sell = async (coinSymbol, coinSalePrice, coinSaleSize) => {
+const sell = async (coinSymbol, coinSalePrice, coinSaleSize, prevOrder) => {
   const coinPortfolio = portfolioCredentialsMap[coinSymbol];
 
   const coinSold = await createOrder({
@@ -472,35 +481,22 @@ const sell = async (coinSymbol, coinSalePrice, coinSaleSize) => {
     size: coinSaleSize
   });
 
+  console.log(coinSold);
+
   if (!coinSold) {
     writeError(`failed to sell ${coinSymbol}`);
   } else {
     const { id, price, size } = coinSold.data;
     const rawTxAmount = parseFloat(price) * parseFloat(size);
-    const portfolioValues = getPortfolioValues();
-    const {amount, balance, prev_buy_price } = portfolioValues[coinSymbol];
-    const prevWalletValue = parseFloat(balance) + (parseInt(amount) * parseFloat(prev_buy_price));
-    const sellReturn = (rawTxAmount - (rawTxAmount * 0.005)).toFixed(2);
-
-    let txGain;
-    let txLoss;
-
-    if (sellReturn > prevWalletValue) {
-      txGain = (sellReturn - prevWalletValue).toFixed(2);
-    } else {
-      txLoss = (sellReturn - prevWalletValue).toFixed(2);
-    }
 
     const txInfo = {
       txId: id,
       txPrice: price,
       txSize: size,
       txAmount: (rawTxAmount - (rawTxAmount * 0.005)).toFixed(2), // factors in 0.5% actual trading fee
-      txGain,
-      txLoss
     };
 
-    updateLocalPortfolioValues(coinSymbol, 'sell', txInfo);
+    updateLocalPortfolioValues(coinSymbol, 'sell', txInfo, prevOrder);
   }
 };
 

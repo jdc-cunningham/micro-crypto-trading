@@ -45,21 +45,23 @@ const runScript = async () => {
           ? {status: 'done'}
           : await getOrder(coinSymbol, portfolio.last_tx_id);
 
+        console.log(order);
+
         console.log(`${coinSymbol} sell order status ${JSON.stringify(order.status)}`);
 
         if (order.status === 'done') {
-          portfolio.current_order_type = "buy";
+          // portfolio.current_order_type = "buy";
 
-          if (order?.size) {
-            portfolio.amount = 0;
-            portfolio.balance = ((parseInt(order.size) * parseFloat(order.price)) + parseFloat(portfolio.balance)).toFixed(2);
-            portfolio.gain = parseFloat(portfolio.balance) > 55 ? parseFloat(portfolio.balance) - 55 : 0;
-            portfolio.loss = parseFloat(portfolio.balance) < 55 ? 55 - parseFloat(portfolio.balance) : 0;
-          }
+          // if (order?.size) {
+          //   portfolio.amount = 0;
+          //   portfolio.balance = ((parseInt(order.size) * parseFloat(order.price)) + parseFloat(portfolio.balance)).toFixed(2);
+          //   portfolio.gain = parseFloat(portfolio.balance) > 55 ? parseFloat(portfolio.balance) - 55 : 0;
+          //   portfolio.loss = parseFloat(portfolio.balance) < 55 ? 55 - parseFloat(portfolio.balance) : 0;
+          // }
 
-          portfolio.last_tx_id = "";
-          portfolio.last_tx_complete = true;
-          updatePortfolioValues(portfolioValues);
+          // portfolio.last_tx_id = "";
+          // portfolio.last_tx_complete = true;
+          // updatePortfolioValues(portfolioValues);
 
           // can buy
           const smallestPriceUnit = portfolio.smallest_price_unit;
@@ -75,15 +77,19 @@ const runScript = async () => {
           }
 
           const amountToBuy = truncatePriceUnit(
-              parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
-              smallestPriceUnit
-            );
+            parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
+            smallestPriceUnit
+          );
+
+          console.log('amount to buy');
+          console.log(amountToBuy);
 
           try {
             await buy(
               coinSymbol,
               amountToBuy,
-              portfolio.balance
+              portfolio.balance > 10 ? portfolio.balance : ((portfolio.amount * parseFloat(portfolio.prev_sell_price)) + portfolio.balance).toFixed(2),
+              order
             ); // * 5 is hopefully definitely under current price
 
             console.log(`${Date.now()} ${coinSymbol} buy order placed`);
@@ -99,19 +105,21 @@ const runScript = async () => {
           ? {status: 'done'}
           : await getOrder(coinSymbol, portfolio.last_tx_id);
 
+        console.log(order);
+
         console.log(`${coinSymbol} buy order status ${JSON.stringify(order.status)}`);
 
         if (order.status === 'done') {
-          portfolio.current_order_type = "";
-          portfolio.last_tx_id = "";
-          portfolio.last_tx_complete = true;
+          // portfolio.current_order_type = "";
+          // portfolio.last_tx_id = "";
+          // portfolio.last_tx_complete = true;
 
-          if (order?.size) {
-            portfolio.balance = (parseFloat(portfolio.balance) - (parseInt(order.size) * parseFloat(order.price))).toFixed(2);
-            portfolio.amount = parseInt(order.size);
-          }
+          // if (order?.size) {
+          //   portfolio.balance = (parseFloat(portfolio.balance) - (parseInt(order.size) * parseFloat(order.price))).toFixed(2);
+          //   portfolio.amount = parseInt(order.size);
+          // }
 
-          updatePortfolioValues(portfolioValues);
+          // updatePortfolioValues(portfolioValues);
 
           // can sell
           const sellAtGainPrice = portfolio.prev_buy_price > coinPrice
@@ -119,7 +127,7 @@ const runScript = async () => {
             : (coinPrice * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit));
 
           try {
-            await sell(coinSymbol, sellAtGainPrice, portfolio.amount);
+            await sell(coinSymbol, sellAtGainPrice, portfolio.amount, order);
             console.log(`${Date.now()} ${coinSymbol} sell order placed`);
           } catch (err) {
             console.error(err);
