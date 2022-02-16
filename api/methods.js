@@ -135,29 +135,6 @@ const updatePortfolioValues = (newPortfolioValues) => {
   });
 }
 
-const updateTxStatus = (coinSymbol, orderId, status) => {
-  const localPortfolioValuesRaw = fs.readFileSync('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', 'utf8', (err, data) => {
-    if (data) {
-      return data;
-    } else {
-      return false;
-    }
-  });
-
-  if (!localPortfolioValuesRaw) {
-    writeError(`Failed to update tx status for ${coinSymbol}`);
-  } else {
-    const portfolioValues = JSON.parse(localPortfolioValuesRaw);
-    portfolioValues[coinSymbol].last_tx_complete = status === 'done' ? true : false; // should always done at this stage
-
-    fs.writeFileSync('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', JSON.stringify(portfolioValues), 'utf8', (err, data) => {
-      if (err) {
-        console.log(`failed to write to update tx status for ${coinSymbol}`);
-      }
-    });
-  }
-}
-
 /**
  * 
  * @param {String} coinSymbol 
@@ -185,12 +162,6 @@ const getOrder = (coinSymbol, orderId) => {
       },
     })
       .then((response) => {
-        const { status } = response.data;
-
-        if (status === 'done') {
-          updateTxStatus(coinSymbol, orderId, 'done');
-        }
-
         resolve({
           status: response.data.status
         });

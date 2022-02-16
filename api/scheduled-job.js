@@ -87,6 +87,7 @@ const runScript = async () => {
         || (curOrderType === "" && portfolioHasCoin)
       ) {
         if (curOrderComplete) {
+          console.log(curOrder);
           portfolio.amount = parseInt(curOrder.size);
           portfolio.balance -= (parseFloat(curOrder.price) * parseFloat(curOrder.size)).toFixed(2);
           portfolio.last_tx_id = '';
