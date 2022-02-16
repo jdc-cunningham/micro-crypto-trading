@@ -4,6 +4,9 @@ Have to let it run for a month and see if it survives, does it continue to trade
 
 ### Fails
 02/15/2022
+This thing is a piece of crap, I have to turn it off, think about it from scratch
+There is always something wrong later on after some transaction goes through
+
 JSON becomes malformed due to some random thing appending to the entire object, can't figure out where it is
 
 02/14/2022
