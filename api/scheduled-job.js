@@ -78,7 +78,7 @@ const runScript = async () => {
             curOrder
           );
 
-          console.log(`${Date.now()} ${coinSymbol} buy order placed`);
+          console.log(`${coinSymbol} buy`);
         } catch (err) {
           console.error(err);
         }
@@ -101,16 +101,18 @@ const runScript = async () => {
 
         try {
           await sell(coinSymbol, sellAtGainPrice, portfolio.amount, curOrder);
-          console.log(`${Date.now()} ${coinSymbol} sell order placed`);
+          console.log(`${coinSymbol} sell`);
         } catch (err) {
           console.error(err);
         }
       } else {
-        console.log(`${coinSymbol} checked, no change ${Date.now()}`);
+        console.log(`${coinSymbol} checked`);
       }
 
       await delayNextIteration();
     };
+
+    console.log(Date.now());
   }
 };
 
