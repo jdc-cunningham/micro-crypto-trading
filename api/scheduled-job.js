@@ -105,8 +105,6 @@ const runScript = async () => {
         } catch (err) {
           console.error(err);
         }
-      } else {
-        console.log(`${coinSymbol} checked`);
       }
 
       await delayNextIteration();
