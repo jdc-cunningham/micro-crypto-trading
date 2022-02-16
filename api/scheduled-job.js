@@ -52,9 +52,20 @@ const runScript = async () => {
           updatePortfolioValues(portfolioValues);
         }
 
+        const priceUnitDecimals = countDecimals(portfolio.smallest_price_unit);
+        let buySubtractionMultiplier = 0;
+
+        if (priceUnitDecimals <= 4) {
+          buySubtractionMultiplier = 10;
+        } else if (priceUnitDecimals === 5) {
+          buySubtractionMultiplier = 25;
+        } else {
+          buySubtractionMultiplier = 100;
+        }
+
         const amountToBuy = truncatePriceUnit(
-          parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
-          smallestPriceUnit
+          parseFloat(coinPrice) - (portfolio.smallest_price_unit * buySubtractionMultiplier),
+          portfolio.smallest_price_unit
         );
 
         try {
@@ -63,8 +74,8 @@ const runScript = async () => {
             amountToBuy,
             portfolio.balance > 10
               ? portfolio.balance
-              : ((order.size * parseFloat(portfolio.prev_sell_price)) + parseFloat(portfolio.balance)).toFixed(2),
-            order
+              : ((curOrder.size * parseFloat(portfolio.prev_sell_price)) + parseFloat(portfolio.balance)).toFixed(2),
+            curOrder
           );
 
           console.log(`${Date.now()} ${coinSymbol} buy order placed`);
@@ -88,7 +99,7 @@ const runScript = async () => {
           : (coinPrice * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit));
 
         try {
-          await sell(coinSymbol, sellAtGainPrice, portfolio.amount, order);
+          await sell(coinSymbol, sellAtGainPrice, portfolio.amount, curOrder);
           console.log(`${Date.now()} ${coinSymbol} sell order placed`);
         } catch (err) {
           console.error(err);

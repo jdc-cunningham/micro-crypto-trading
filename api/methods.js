@@ -114,7 +114,6 @@ const updateLocalCryptoPrices = (currentCoinMarketCapCryptoPrices) => {
     });
 
     fs.writeFileSync('/home/pi/micro-crypto-trading/api/data/price_tracking.json', JSON.stringify(localPrices), 'utf8', (err, data) => {
-      console.log('update local');
       if (err) {
         writeError(`Failed to write new prices, ${JSON.stringify(err).substring(0, 24)}`);
         return false;
@@ -126,7 +125,6 @@ const updateLocalCryptoPrices = (currentCoinMarketCapCryptoPrices) => {
 }
 
 const updatePortfolioValues = (newPortfolioValues) => {
-  console.log('update port');
   fs.writeFileSync('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', JSON.stringify(newPortfolioValues), 'utf8', (err, data) => {
     if (err) {
       console.log(`failed to update portfolio values`);
@@ -192,8 +190,6 @@ const getOrder = (coinSymbol, orderId) => {
         if (status === 'done') {
           updateTxStatus(coinSymbol, orderId, 'done');
         }
-
-        // console.log(response.data);
 
         resolve({
           status: response.data.status
@@ -376,9 +372,7 @@ const getPortfolioValues = () => {
  */
 const updateLocalPortfolioValues = (coinSymbol, action, txInfo, prevOrder) => {
   // txAmount can flex between units of a coin and USD depending on action
-  const { txAmount, txSize, txPrice, txLoss, txGain, txId } = txInfo;
-
-  console.log(prevOrder);
+  const { txPrice, txId } = txInfo;
 
   const localPortfolioValuesRaw = fs.readFileSync('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', 'utf8', (err, data) => {
     if (data) {
@@ -409,7 +403,6 @@ const updateLocalPortfolioValues = (coinSymbol, action, txInfo, prevOrder) => {
       [coinSymbol]: updatedCoinPortfolioValues
     };
 
-    console.log('update local port');
     fs.writeFileSync('/home/pi/micro-crypto-trading/api/data/portfolio_values.json', JSON.stringify(updatedLocalPortfolioValues), 'utf8', (err, data) => {
       if (err) {
         console.log(`failed to write to update local portfolio values`);
@@ -476,8 +469,6 @@ const sell = async (coinSymbol, coinSalePrice, coinSaleSize, prevOrder) => {
     price: coinSalePrice,
     size: coinSaleSize
   });
-
-  console.log(coinSold);
 
   if (!coinSold) {
     writeError(`failed to sell ${coinSymbol}`);
