@@ -397,13 +397,9 @@ const updateLocalPortfolioValues = (coinSymbol, action, txInfo, prevOrder) => {
     updatedCoinPortfolioValues['last_tx_complete'] = false;
 
     if (action === 'buy') {
-      updatedCoinPortfolioValues['balance'] = (parseFloat(updatedCoinPortfolioValues.balance) + (parseInt(prevOrder.size) * parseFloat(prevOrder.price))).toFixed(2);
-      updatedCoinPortfolioValues['amount'] = 0;
       updatedCoinPortfolioValues['prev_buy_price'] = txPrice.toString();
       updatedCoinPortfolioValues['current_order_type'] = 'buy';
     } else {
-      updatedCoinPortfolioValues['balance'] = (parseFloat(updatedCoinPortfolioValues.balance) - (parseInt(prevOrder.size) * parseFloat(prevOrder.price))).toFixed(2);
-      updatedCoinPortfolioValues['amount'] = prevOrder.size;
       updatedCoinPortfolioValues['prev_sell_price'] = txPrice.toString();
       updatedCoinPortfolioValues['current_order_type'] = 'sell';
     }

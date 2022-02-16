@@ -35,106 +35,66 @@ const runScript = async () => {
     for (const coinSymbol of Object.keys(portfolioValues)) {
       const coinPrice = coinCurrentPrices.data[localCoinMap[coinSymbol].id].quote.USD.price;
       const portfolio = portfolioValues[coinSymbol];
-      let order = {};
-
+      const curOrderType = portfolio.current_order_type;
+      const curOrder = portfolio.last_tx_id ? await getOrder(coinSymbol, portfolio.last_tx_id) : null;
+      const curOrderComplete = curOrder ? curOrder.status === 'done' : false;
+      const portfolioHasCoin = parseInt(portfolio.amount) > 0; // wares
+      
       if (
-        portfolio.current_order_type === 'sell'
-        || (portfolio.current_order_type === "" && parseInt(portfolio.balance) > 10)
+        (curOrderType === "sell" && curOrderComplete)
+        || (curOrderType === "" && !portfolioHasCoin)
       ) {
-        order = portfolio.current_order_type === ""
-          ? {status: 'done'}
-          : await getOrder(coinSymbol, portfolio.last_tx_id);
+        if (curOrderComplete) {
+          portfolio.amount = 0;
+          portfolio.balance += (parseFloat(curOrder.price) * parseFloat(curOrder.size)).toFixed(2);
+          portfolio.last_tx_id = '';
+          portfolio.last_tx_complete = true;
+          updatePortfolioValues(portfolioValues);
+        }
 
-        console.log(order);
+        const amountToBuy = truncatePriceUnit(
+          parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
+          smallestPriceUnit
+        );
 
-        console.log(`${coinSymbol} sell order status ${JSON.stringify(order.status)}`);
-
-        if (order.status === 'done') {
-          // portfolio.current_order_type = "buy";
-
-          // if (order?.size) {
-          //   portfolio.amount = 0;
-          //   portfolio.balance = ((parseInt(order.size) * parseFloat(order.price)) + parseFloat(portfolio.balance)).toFixed(2);
-          //   portfolio.gain = parseFloat(portfolio.balance) > 55 ? parseFloat(portfolio.balance) - 55 : 0;
-          //   portfolio.loss = parseFloat(portfolio.balance) < 55 ? 55 - parseFloat(portfolio.balance) : 0;
-          // }
-
-          // portfolio.last_tx_id = "";
-          // portfolio.last_tx_complete = true;
-          // updatePortfolioValues(portfolioValues);
-
-          // can buy
-          const smallestPriceUnit = portfolio.smallest_price_unit;
-          const priceUnitDecimals = countDecimals(smallestPriceUnit);
-          let buySubtractionMultiplier = 0;
-
-          if (priceUnitDecimals <= 4) {
-            buySubtractionMultiplier = 10;
-          } else if (priceUnitDecimals === 5) {
-            buySubtractionMultiplier = 25;
-          } else {
-            buySubtractionMultiplier = 100;
-          }
-
-          const amountToBuy = truncatePriceUnit(
-            parseFloat(coinPrice) - (smallestPriceUnit * buySubtractionMultiplier),
-            smallestPriceUnit
+        try {
+          await buy(
+            coinSymbol,
+            amountToBuy,
+            portfolio.balance > 10
+              ? portfolio.balance
+              : ((order.size * parseFloat(portfolio.prev_sell_price)) + parseFloat(portfolio.balance)).toFixed(2),
+            order
           );
 
-          console.log('amount to buy');
-          console.log(amountToBuy);
-
-          try {
-            await buy(
-              coinSymbol,
-              amountToBuy,
-              portfolio.balance > 10 ? portfolio.balance : ((portfolio.amount * parseFloat(portfolio.prev_sell_price)) + portfolio.balance).toFixed(2),
-              order
-            ); // * 5 is hopefully definitely under current price
-
-            console.log(`${Date.now()} ${coinSymbol} buy order placed`);
-          } catch (err) {
-            console.error(err);
-          }
+          console.log(`${Date.now()} ${coinSymbol} buy order placed`);
+        } catch (err) {
+          console.error(err);
         }
       } else if (
-        portfolio.current_order_type === 'buy'
-        || (portfolio.current_order_type === "" && parseInt(portfolio.amount) > 10)
+        (curOrderType === "buy" && curOrderComplete)
+        || (curOrderType === "" && portfolioHasCoin)
       ) {
-        order = portfolio.current_order_type === ""
-          ? {status: 'done'}
-          : await getOrder(coinSymbol, portfolio.last_tx_id);
+        if (curOrderComplete) {
+          portfolio.amount = parseInt(curOrder.size);
+          portfolio.balance -= (parseFloat(curOrder.price) * parseFloat(curOrder.size)).toFixed(2);
+          portfolio.last_tx_id = '';
+          portfolio.last_tx_complete = true;
+          updatePortfolioValues(portfolioValues);
+        }
 
-        console.log(order);
+        const sellAtGainPrice = portfolio.prev_buy_price > coinPrice
+          ? (portfolio.prev_buy_price * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit))
+          : (coinPrice * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit));
 
-        console.log(`${coinSymbol} buy order status ${JSON.stringify(order.status)}`);
-
-        if (order.status === 'done') {
-          // portfolio.current_order_type = "";
-          // portfolio.last_tx_id = "";
-          // portfolio.last_tx_complete = true;
-
-          // if (order?.size) {
-          //   portfolio.balance = (parseFloat(portfolio.balance) - (parseInt(order.size) * parseFloat(order.price))).toFixed(2);
-          //   portfolio.amount = parseInt(order.size);
-          // }
-
-          // updatePortfolioValues(portfolioValues);
-
-          // can sell
-          const sellAtGainPrice = portfolio.prev_buy_price > coinPrice
-            ? (portfolio.prev_buy_price * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit))
-            : (coinPrice * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit));
-
-          try {
-            await sell(coinSymbol, sellAtGainPrice, portfolio.amount, order);
-            console.log(`${Date.now()} ${coinSymbol} sell order placed`);
-          } catch (err) {
-            console.error(err);
-          }
+        try {
+          await sell(coinSymbol, sellAtGainPrice, portfolio.amount, order);
+          console.log(`${Date.now()} ${coinSymbol} sell order placed`);
+        } catch (err) {
+          console.error(err);
         }
       } else {
-        console.log(`${coinSymbol} ${portfolio.current_order_type} order in progress`);
+        console.log(`${coinSymbol} checked, no change ${Date.now()}`);
       }
 
       await delayNextIteration();
