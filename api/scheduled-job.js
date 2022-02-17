@@ -37,7 +37,7 @@ const runScript = async () => {
       const portfolio = portfolioValues[coinSymbol];
       const curOrderType = portfolio.current_order_type;
       const curOrder = portfolio.last_tx_id ? await getOrder(coinSymbol, portfolio.last_tx_id) : null;
-      const curOrderComplete = curOrder ? curOrder.status === 'done' : false;
+      const curOrderComplete = curOrder ? curOrder.status.status === 'done' : false;
       const portfolioHasCoin = parseInt(portfolio.amount) > 0; // wares
       
       if (
@@ -45,8 +45,9 @@ const runScript = async () => {
         || (curOrderType === "" && !portfolioHasCoin)
       ) {
         if (curOrderComplete) {
+          const { price, size } = curOrder.status;
           portfolio.amount = 0;
-          portfolio.balance += (parseFloat(curOrder.price) * parseFloat(curOrder.size)).toFixed(2);
+          portfolio.balance = (parseFloat(portfolio.balance) + ((parseFloat(price) * parseFloat(size)))).toFixed(2);
           portfolio.last_tx_id = '';
           portfolio.last_tx_complete = true;
           updatePortfolioValues(portfolioValues);
@@ -74,8 +75,7 @@ const runScript = async () => {
             amountToBuy,
             portfolio.balance > 10
               ? portfolio.balance
-              : ((curOrder.size * parseFloat(portfolio.prev_sell_price)) + parseFloat(portfolio.balance)).toFixed(2),
-            curOrder
+              : ((size * parseFloat(portfolio.prev_sell_price)) + parseFloat(portfolio.balance)).toFixed(2)
           );
 
           console.log(`${coinSymbol} buy`);
@@ -87,9 +87,9 @@ const runScript = async () => {
         || (curOrderType === "" && portfolioHasCoin)
       ) {
         if (curOrderComplete) {
-          console.log(curOrder);
-          portfolio.amount = parseInt(curOrder.size);
-          portfolio.balance -= (parseFloat(curOrder.price) * parseFloat(curOrder.size)).toFixed(2);
+          const { size, price } = curOrder.status;
+          portfolio.amount = parseInt(size);
+          portfolio.balance = (parseFloat(portfolio.balance) - ((parseFloat(price) * parseFloat(size))).toFixed(2));
           portfolio.last_tx_id = '';
           portfolio.last_tx_complete = true;
           updatePortfolioValues(portfolioValues);
@@ -100,7 +100,7 @@ const runScript = async () => {
           : (coinPrice * 1.02).toFixed(countDecimals(portfolio.smallest_price_unit));
 
         try {
-          await sell(coinSymbol, sellAtGainPrice, portfolio.amount, curOrder);
+          await sell(coinSymbol, sellAtGainPrice, portfolio.amount);
           console.log(`${coinSymbol} sell`);
         } catch (err) {
           console.error(err);

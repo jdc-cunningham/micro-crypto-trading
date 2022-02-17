@@ -163,7 +163,7 @@ const getOrder = (coinSymbol, orderId) => {
     })
       .then((response) => {
         resolve({
-          status: response.data.status
+          status: response.data
         });
       })
       .catch((error) => {
@@ -339,9 +339,8 @@ const getPortfolioValues = () => {
  * @param {String} coinSymbol eg. DNT
  * @param {String} action buy/sell 
  * @param {Object} txInfo has info like amount and size
- * @param {Object} prevOrder includes info such as price/size
  */
-const updateLocalPortfolioValues = (coinSymbol, action, txInfo, prevOrder) => {
+const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
   // txAmount can flex between units of a coin and USD depending on action
   const { txPrice, txId } = txInfo;
 
@@ -388,10 +387,9 @@ const updateLocalPortfolioValues = (coinSymbol, action, txInfo, prevOrder) => {
  * @param {String} coinSymbol eg. DNT
  * @param {Float} coinPrice 4 decimal place precision
  * @param {Float} coinPortfolioBalance USD
- * @param {Object} prevOrder includes info such as price/size
  *
  */
-const buy = async (coinSymbol, coinPrice, coinPortfolioBalance, prevOrder) => {
+const buy = async (coinSymbol, coinPrice, coinPortfolioBalance) => {
   const coinPortfolio = portfolioCredentialsMap[coinSymbol];
   const balanceAvailable = coinPortfolioBalance - (coinPortfolioBalance * tradingFee); // limits amount used by 2x actual trading fee
   const size = (balanceAvailable / coinPrice).toFixed(0);
@@ -417,7 +415,7 @@ const buy = async (coinSymbol, coinPrice, coinPortfolioBalance, prevOrder) => {
       txAmount: (rawTxAmount + (rawTxAmount * 0.005)).toFixed(2) // adds 0.5% actual trading fee
     };
 
-    updateLocalPortfolioValues(coinSymbol, 'buy', txInfo, prevOrder);
+    updateLocalPortfolioValues(coinSymbol, 'buy', txInfo);
   }
 };
 
@@ -427,10 +425,9 @@ const buy = async (coinSymbol, coinPrice, coinPortfolioBalance, prevOrder) => {
  * @param {String} coinSymbol eg. DNT
  * @param {Float} coinSalePrice determined salePrice from algo
  * @param {Float} coinSaleSize size based on amount in portfolio
- * @param {Object} prevOrder includes info such as price/size
  *
  */
-const sell = async (coinSymbol, coinSalePrice, coinSaleSize, prevOrder) => {
+const sell = async (coinSymbol, coinSalePrice, coinSaleSize) => {
   const coinPortfolio = portfolioCredentialsMap[coinSymbol];
 
   const coinSold = await createOrder({
@@ -454,7 +451,7 @@ const sell = async (coinSymbol, coinSalePrice, coinSaleSize, prevOrder) => {
       txAmount: (rawTxAmount - (rawTxAmount * 0.005)).toFixed(2), // factors in 0.5% actual trading fee
     };
 
-    updateLocalPortfolioValues(coinSymbol, 'sell', txInfo, prevOrder);
+    updateLocalPortfolioValues(coinSymbol, 'sell', txInfo);
   }
 };
 
