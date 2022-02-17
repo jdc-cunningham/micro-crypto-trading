@@ -45,9 +45,9 @@ const runScript = async () => {
         || (curOrderType === "" && !portfolioHasCoin)
       ) {
         if (curOrderComplete) {
-          const { price, size } = curOrder.status;
+          const { price, size, fill_fees } = curOrder.status;
           portfolio.amount = 0;
-          portfolio.balance = (parseFloat(portfolio.balance) + ((parseFloat(price) * parseFloat(size)))).toFixed(2);
+          portfolio.balance = (parseFloat(portfolio.balance) + ((parseFloat(price) * parseFloat(size)) - parseFloat(fill_fees))).toFixed(2);
           portfolio.last_tx_id = '';
           portfolio.last_tx_complete = true;
           updatePortfolioValues(portfolioValues);
@@ -87,9 +87,9 @@ const runScript = async () => {
         || (curOrderType === "" && portfolioHasCoin)
       ) {
         if (curOrderComplete) {
-          const { size, price } = curOrder.status;
+          const { size, price, fill_fees } = curOrder.status;
           portfolio.amount = parseInt(size);
-          portfolio.balance = (parseFloat(portfolio.balance) - ((parseFloat(price) * parseFloat(size))).toFixed(2));
+          portfolio.balance = (parseFloat(portfolio.balance) - ((parseFloat(price) * parseFloat(size)) - parseFloat(fill_fees))).toFixed(2);
           portfolio.last_tx_id = '';
           portfolio.last_tx_complete = true;
           updatePortfolioValues(portfolioValues);
