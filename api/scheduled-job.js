@@ -45,6 +45,8 @@ const runScript = async () => {
         || (curOrderType === "" && !portfolioHasCoin)
       ) {
         if (curOrderComplete) {
+          console.log(coinSymbol);
+          console.log(JSON.stringify(curOrder));
           const { price, size, fill_fees } = curOrder.status;
           portfolio.amount = 0;
           portfolio.balance = (parseFloat(portfolio.balance) + ((parseFloat(price) * parseFloat(size)) - parseFloat(fill_fees))).toFixed(2);
@@ -87,6 +89,8 @@ const runScript = async () => {
         || (curOrderType === "" && portfolioHasCoin)
       ) {
         if (curOrderComplete) {
+          console.log(coinSymbol);
+          console.log(JSON.stringify(curOrder));
           const { size, price, fill_fees } = curOrder.status;
           portfolio.amount = parseInt(size);
           portfolio.balance = (parseFloat(portfolio.balance) - ((parseFloat(price) * parseFloat(size)) - parseFloat(fill_fees))).toFixed(2);
