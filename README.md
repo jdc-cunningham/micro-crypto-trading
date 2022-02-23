@@ -23,7 +23,7 @@ Disclaimer: Also note the local portfolio balance tracker can lose/gain cents ov
 
 The prices are checked every 5 minutes and is charted by the day (timestamps)
 
-### Did this make money?
+### Did this make money? (NO)
 ANSWER - I ran this and checked in weekly increments
 
 ### Tips
