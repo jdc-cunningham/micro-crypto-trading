@@ -37,4 +37,4 @@ There is a chart that is from the 5-minute CRON job that gets prices of the cryp
 
 <img src="./03-01-2022-chart.PNG" width="800"/>
 
-Red is loss, green gain over the initial $55.00 per currency
+Red is loss, green gain over the initial $55.00 per currency. As in the value seen is current value from starting point of $55 so $35 means it lost $20.
