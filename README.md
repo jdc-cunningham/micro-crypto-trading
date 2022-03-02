@@ -1,5 +1,5 @@
 ### Micro Crypto Trading
-Disclaimer: I am not an expert, this is just a fun hobby thing
+Disclaimer: I am not an expert, this is just a fun hobby thing <br>
 Disclaimer: Also note the local portfolio balance tracker can lose/gain cents over time due to rounding problems.
 
 ### Stack
