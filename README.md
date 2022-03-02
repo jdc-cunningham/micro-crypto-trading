@@ -31,3 +31,10 @@ ANSWER - I ran this and checked in weekly increments
 
 ### Note
 The pi branch is the actual code that ran, it may be slightly out of sync but the only difference should be the included full paths for CRON to work correctly.
+
+### Visual aspect
+There is a chart that is from the 5-minute CRON job that gets prices of the crypto selected.
+
+<img src="./03-01-2022-chart.PNG" width="800"/>
+
+Red is loss, green gain over the initial $55.00 per currency
