@@ -8,7 +8,7 @@ const {
 
 const {
   getCoinMarketCapCryptoPrices, updateLocalCryptoPrices, buy, sell, getOrder, getPortfolioValues,
-  countDecimals, truncatePriceUnit, delayNextIteration, updatePortfolioValues
+  countDecimals, truncatePriceUnit, delayNextIteration, updatePortfolioValues, writeError
 } = require('/home/pi/micro-crypto-trading/api/methods.js');
 
 /**
@@ -39,6 +39,13 @@ const runScript = async () => {
       const curOrder = portfolio.last_tx_id ? await getOrder(coinSymbol, portfolio.last_tx_id) : null;
       const curOrderComplete = curOrder ? curOrder.status.status === 'done' : false;
       const portfolioHasCoin = parseInt(portfolio.amount) > 0; // wares
+
+      // check if there's a problem, if there's no txid and there's a current_order_type something went wrong
+      // most likely a balance is not right
+      // there is a problem of syncing the balances since it doesn't come from CBP and my math sucks
+      if (portfolio.current_order_type && !portfolio.last_tx_id) {
+        writeError(`${Date.now()} something went wrong for ${coinSymbol}`);
+      }
       
       if (
         (curOrderType === "sell" && curOrderComplete)

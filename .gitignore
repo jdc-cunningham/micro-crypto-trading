@@ -1,6 +1,7 @@
 # files
 .env
 env.js
+price_tracking.json
 
 #folders
 node_modules/

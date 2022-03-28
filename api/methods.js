@@ -581,5 +581,6 @@ module.exports = {
   countDecimals,
   truncatePriceUnit,
   delayNextIteration,
-  updatePortfolioValues
+  updatePortfolioValues,
+  writeError
 }
