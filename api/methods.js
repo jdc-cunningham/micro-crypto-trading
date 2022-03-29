@@ -391,8 +391,8 @@ const updateLocalPortfolioValues = (coinSymbol, action, txInfo) => {
  */
 const buy = async (coinSymbol, coinPrice, coinPortfolioBalance) => {
   const coinPortfolio = portfolioCredentialsMap[coinSymbol];
-   // limits amount used by 2x actual trading fee, subtract 50 cents for approximate balance mismatch highest amount seen
-  const balanceAvailable = coinPortfolioBalance - (coinPortfolioBalance * tradingFee - 0.50);
+   // limits amount used by 2x actual trading fee, subtract $1 for approximate balance mismatch highest amount seen
+  const balanceAvailable = (coinPortfolioBalance - (coinPortfolioBalance * tradingFee) - 1);
   const size = (balanceAvailable / coinPrice).toFixed(0);
 
   const coinPurchased = await createOrder({
