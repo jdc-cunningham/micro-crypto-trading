@@ -38,3 +38,12 @@ There is a chart that is from the 5-minute CRON job that gets prices of the cryp
 <img src="./03-01-2022-chart.PNG" width="800"/>
 
 Red is loss, green gain over the initial $55.00 per currency. As in the value seen is current value from starting point of $55 so $35 means it lost $20.
+
+### Final update (05-22-2022)
+Scientifically speaking, I am what you call "rekt". Anyway I'm pulling out of crypto entirely and just focusing on paying down debts/saving/investing, I know even VOO got rekt recently. Aside from that just generally trying to make passive income somehow.
+
+I'm turning this off. I know I can wait till it rebounds but I don't want to think about it anymore.
+
+<img src="./final-state-05-22-2022.JPG" width="800"/>
+
+All of these started at $55.00 each
